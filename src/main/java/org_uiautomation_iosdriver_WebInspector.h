@@ -25,19 +25,19 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_stop
 
 /*
  * Class:     org_uiautomation_iosdriver_WebInspector
- * Method:    receiveMessageImpl
- * Signature: ()[B
+ * Method:    receiveMessage
+ * Signature: ()Ljava/lang/String;
  */
-JNIEXPORT jbyteArray JNICALL Java_org_uiautomation_iosdriver_WebInspector_receiveMessageImpl
+JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_WebInspector_receiveMessage
   (JNIEnv *, jobject);
 
 /*
  * Class:     org_uiautomation_iosdriver_WebInspector
- * Method:    sendMessageImpl
- * Signature: ([B)V
+ * Method:    sendMessage
+ * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_sendMessageImpl
-  (JNIEnv *, jobject, jbyteArray);
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_sendMessage
+  (JNIEnv *, jobject, jstring);
 
 #ifdef __cplusplus
 }

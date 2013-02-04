@@ -3,9 +3,9 @@ package org.uiautomation.iosdriver;
 import java.io.UnsupportedEncodingException;
 
 /**
- * ➜  java  gcc   -I/System/Library/Frameworks/JavaVM.framework/Headers -c
- * org_uiautomation_iosdriver_WebInspector.c ➜  java  gcc -dynamiclib -o libwebinspector.jnilib
- * org_uiautomation_iosdriver_WebInspector.o ➜  java  sudo mv libwebinspector.jnilib /usr/lib/java
+ * ➜  java git:(master) ✗ gcc   -I/System/Library/Frameworks/JavaVM.framework/Headers -I/opt/local/include/ -I/Users/freynaud/Documents/workspace/libimobiledevice/include -c org_uiautomation_iosdriver_WebInspector.c
+ * ➜  javagit:(master) ✗ gcc  -limobiledevicec -dynamiclib -o libwebinspector.jnilib org_uiautomation_iosdriver_WebInspector.o
+ * ➜  java  sudo mv libwebinspector.jnilib /usr/lib/java
  */
 public class WebInspector {
 
@@ -17,24 +17,17 @@ public class WebInspector {
 
   public native void stop();
 
-  public String receiveMessage() throws UnsupportedEncodingException {
-    return new String(receiveMessageImpl(), "UTF-8");
-  }
+  public native String receiveMessage();
+  public native void sendMessage(String xml);
 
-  public void sendMessage(String xml){
-    sendMessageImpl(xml.getBytes());
-  }
 
-  public native byte[] receiveMessageImpl();
-
-  public native void sendMessageImpl(byte[] xml);
 
 
   public static void main(String[] args) {
-    /*WebInspector inspector = new WebInspector();
+    WebInspector inspector = new WebInspector();
     inspector.start();
     inspector.sendMessage("my xml");
     System.out.println(inspector.receiveMessage());
-    inspector.stop();*/
+    inspector.stop();
   }
 }

@@ -3,6 +3,9 @@
 #include <string.h>
 #include "org_uiautomation_iosdriver_DeviceManager.h"
 #include <libimobiledevice/libimobiledevice.h>
+#include <libimobiledevice/lockdown.h>
+#include <plist/plist.h>
+
 
 
 static idevice_t device = NULL;
@@ -30,4 +33,65 @@ JNIEXPORT jobject JNICALL Java_org_uiautomation_iosdriver_DeviceManager_getDevic
     idevice_device_list_free(dev_list);
 
     return(ret);
+}
+
+
+
+
+JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_DeviceManager_getDeviceInfo(JNIEnv *env , jobject thiz, jstring uuid){
+    char *deviceid = NULL;
+    jboolean *isCopy = NULL;
+    idevice_error_t ret = IDEVICE_E_UNKNOWN_ERROR;
+    idevice_t device = NULL;
+    lockdownd_client_t client = NULL;
+    char *domain = NULL;
+    char *key = NULL;
+    plist_t node = NULL;
+    char *xml_doc = NULL;
+    uint32_t xml_length;
+    jstring res = NULL;
+
+
+
+    deviceid = (*env)->GetStringUTFChars(env,uuid,isCopy);
+    //printf("recieved request for device info for device : %s\n",deviceid);
+
+    ret = idevice_new(&device, deviceid);
+
+    if (ret != IDEVICE_E_SUCCESS) {
+        if (deviceid!=NULL) {
+            throwException(env,"No device found with given uuid, is it plugged in?\n");
+    	    //printf("No device found with udid %s, is it plugged in?\n", deviceid);
+    	    return ;
+    	} else {
+    		throwException(env,"No device found, is it plugged in?\n");
+    		//printf("No device found, is it plugged in?\n");
+    		return ;
+    	}
+    }
+
+    // do we need the handshake here ?
+    if (LOCKDOWN_E_SUCCESS != lockdownd_client_new_with_handshake(device, &client, "ideviceinfo")) {
+    	idevice_free(device);
+    	throwException(env,"Found device, but cannot do lockdown.\n");
+    }
+
+    if(lockdownd_get_value(client, domain, key, &node) == LOCKDOWN_E_SUCCESS) {
+        if (node) {
+            plist_to_xml(node, &xml_doc, &xml_length);
+            //printf("%s", xml_doc);
+            res = (*env)->NewStringUTF(env,xml_doc);
+            free(xml_doc);
+            plist_free(node);
+            node = NULL;
+        }else {
+            // node
+        }
+     }else {
+        // get info call failed.
+     }
+    lockdownd_client_free(client);
+    idevice_free(device);
+
+    return res;
 }

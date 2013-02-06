@@ -17,6 +17,7 @@ public class DeviceManager {
     for (String s : manager.getDeviceList()){
       System.out.println("found device : "+s);
     }
+    System.out.println("device info : "+manager.getDeviceInfo("d1ce6333af579e27d166349dc8a1989503ba5b4f"));
   }
 
 }

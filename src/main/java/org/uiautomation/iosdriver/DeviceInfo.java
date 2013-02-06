@@ -15,10 +15,16 @@ public class DeviceInfo {
   private String chipID;
   private String deviceClass;
   private String deviceColor;
+  private String productType;
+  private String productVersion;
+  private String uniqueDeviceID;
+  private String wifiAddress;
   private String deviceName;
   private String firmwareVersion;
   private String hardwareModel;
   private String modelNumber;
+  // array of int
+  private String SupportedDeviceFamilies;
 
   public String getBluetoothAddress() {
     return bluetoothAddress;
@@ -76,14 +82,10 @@ public class DeviceInfo {
     return wifiAddress;
   }
 
-  private String productType;
-  private String productVersion;
-  private String uniqueDeviceID;
-  private String wifiAddress;
 
 
-  // array of int
-  private String SupportedDeviceFamilies;
+
+
 
   public DeviceInfo(String xml) {
     this.raw = xml;
@@ -113,6 +115,23 @@ public class DeviceInfo {
     uniqueDeviceID= rootDict.objectForKey("UniqueDeviceID").toString();
     wifiAddress= rootDict.objectForKey("WiFiAddress").toString();
   }
+
+
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer();
+    sb.append("DeviceInfo");
+    sb.append("{buildVersion='").append(buildVersion).append('\'');
+    sb.append(", cpuArchitecture='").append(cpuArchitecture).append('\'');
+    sb.append(", deviceClass='").append(deviceClass).append('\'');
+    sb.append(", deviceName='").append(deviceName).append('\'');
+    sb.append(", productType='").append(productType).append('\'');
+    sb.append(", productVersion='").append(productVersion).append('\'');
+    sb.append(", uniqueDeviceID='").append(uniqueDeviceID).append('\'');
+    sb.append('}');
+    return sb.toString();
+  }
+
 
   public String getBuildVersion() {
     return buildVersion;

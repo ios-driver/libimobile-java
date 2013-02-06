@@ -13,7 +13,7 @@ static idevice_t device = NULL;
 void throwException(JNIEnv *env,char * msg){
     (*env)->ThrowNew(env, (*env)->FindClass(env, "org/uiautomation/iosdriver/Exception"), msg);
 }
-JNIEXPORT jobject JNICALL Java_org_uiautomation_iosdriver_DeviceManager_getDeviceList  (JNIEnv *env, jobject thiz) {
+JNIEXPORT jobject JNICALL Java_org_uiautomation_iosdriver_DeviceManager_getDeviceListNative  (JNIEnv *env, jobject thiz) {
     int i;
     char **dev_list = NULL;
 
@@ -38,7 +38,7 @@ JNIEXPORT jobject JNICALL Java_org_uiautomation_iosdriver_DeviceManager_getDevic
 
 
 
-JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_DeviceManager_getDeviceInfo(JNIEnv *env , jobject thiz, jstring uuid){
+JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_DeviceManager_getDeviceInfoNative(JNIEnv *env , jobject thiz, jstring uuid){
     char *deviceid = NULL;
     jboolean *isCopy = NULL;
     idevice_error_t ret = IDEVICE_E_UNKNOWN_ERROR;

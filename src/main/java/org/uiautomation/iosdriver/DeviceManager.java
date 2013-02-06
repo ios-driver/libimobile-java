@@ -9,7 +9,7 @@ public class DeviceManager {
   }
 
   public native String[] getDeviceList();
-
+  public native String getDeviceInfo(String uuid);
 
 
   public static void main(String[] args) {

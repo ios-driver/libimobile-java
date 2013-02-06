@@ -29,14 +29,5 @@ JNIEXPORT jobject JNICALL Java_org_uiautomation_iosdriver_DeviceManager_getDevic
 
     idevice_device_list_free(dev_list);
 
-
-
-
-
-   // char *data[5]= {"A", "B", "C", "D", "E"};
-
-    //ret= (jobjectArray) (*env)->NewObjectArray(env,5, (*env)->FindClass(env,"java/lang/String"),(*env)->NewStringUTF(env,""));
-
-    //for(i=0;i<5;i++)  (*env)->SetObjectArrayElement(env,ret,i,(*env)->NewStringUTF(env,data[i]));
     return(ret);
 }

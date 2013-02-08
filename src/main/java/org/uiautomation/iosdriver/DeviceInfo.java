@@ -139,4 +139,7 @@ public class DeviceInfo {
   public String getBuildVersion() {
     return buildVersion;
   }
+
+
+
 }

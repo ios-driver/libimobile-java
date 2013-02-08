@@ -2,6 +2,7 @@ package org.uiautomation.iosdriver;
 
 import com.google.common.collect.Lists;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.Exception;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,7 +34,14 @@ public class DeviceManager {
   }
 
   private DeviceInfo getDeviceInfo(String uuid) {
-    return new DeviceInfo(getDeviceInfoNative(uuid));
+    String xml =  getDeviceInfoNative(uuid);
+    try {
+      // it is there for a reason.
+      xml = new String(xml.getBytes("UTF-8"));
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+    }
+    return new DeviceInfo(xml);
   }
 
 
@@ -74,12 +82,15 @@ public class DeviceManager {
   }
 
 
+
+
   public static void main(String[] args) throws InterruptedException {
     DeviceManager manager = new DeviceManager(new DeviceDetector() {
       @Override
       public void onDeviceAdded(DeviceInfo deviceInfo) {
         System.out.println(
             "added " + deviceInfo.getDeviceName() + " running " + deviceInfo.getProductVersion());
+        System.out.println(deviceInfo.toString());
       }
 
       @Override

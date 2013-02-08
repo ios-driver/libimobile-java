@@ -92,14 +92,15 @@ public class DeviceInfo {
     try {
       parse();
     } catch (Exception e) {
-      throw new RuntimeException("Cannot parse the device info xml", e);
+      throw new RuntimeException("Cannot parse the device info xml "+e.getMessage(), e);
     }
 
   }
 
   private void parse() throws java.lang.Exception {
-    NSDictionary rootDict = (NSDictionary) XMLPropertyListParser.parse(raw.getBytes());
+    NSDictionary rootDict = (NSDictionary) XMLPropertyListParser.parse(raw.getBytes("UTF-8"));
     buildVersion = rootDict.objectForKey("BuildVersion").toString();
+
     bluetoothAddress= rootDict.objectForKey("BluetoothAddress").toString();
     boardId= rootDict.objectForKey("BoardId").toString();
     cpuArchitecture= rootDict.objectForKey("CPUArchitecture").toString();
@@ -114,6 +115,8 @@ public class DeviceInfo {
     productVersion= rootDict.objectForKey("ProductVersion").toString();
     uniqueDeviceID= rootDict.objectForKey("UniqueDeviceID").toString();
     wifiAddress= rootDict.objectForKey("WiFiAddress").toString();
+
+    System.out.println("big dady's ? "+ "Big Daddy’s iPhone".equals(deviceName) + " -> "+ deviceName);
   }
 
 

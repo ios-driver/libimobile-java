@@ -13,7 +13,7 @@ extern "C" {
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_start
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jstring);
 
 /*
  * Class:     org_uiautomation_iosdriver_WebInspector
@@ -21,7 +21,7 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_start
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_stop
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jstring);
 
 /*
  * Class:     org_uiautomation_iosdriver_WebInspector
@@ -29,7 +29,7 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_stop
  * Signature: ()Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_WebInspector_receiveMessage
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jstring);
 
 /*
  * Class:     org_uiautomation_iosdriver_WebInspector
@@ -37,7 +37,7 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_WebInspector_receiveMe
  * Signature: (Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_sendMessage
-  (JNIEnv *, jobject, jstring);
+  (JNIEnv *, jobject, jstring, jstring);
 
 #ifdef __cplusplus
 }

@@ -79,7 +79,7 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_DeviceManager_getDevic
     if(lockdownd_get_value(client, domain, key, &node) == LOCKDOWN_E_SUCCESS) {
         if (node) {
             plist_to_xml(node, &xml_doc, &xml_length);
-            //printf("%s", xml_doc);
+            printf("FROM C \n\n%s\n\n", xml_doc);
             res = (*env)->NewStringUTF(env,xml_doc);
             free(xml_doc);
             plist_free(node);

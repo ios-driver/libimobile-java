@@ -3,6 +3,9 @@ package org.uiautomation.iosdriver;
 public class DeviceInstallerService {
 
   private final String uuid;
+  static {
+    System.loadLibrary("deviceinstallerservice");
+  }
 
 
   public DeviceInstallerService(String uuid) {
@@ -28,5 +31,10 @@ public class DeviceInstallerService {
                               String destinationFolder);
 
 
+  public static void main(String[] args){
+    String s = "Application installed : "+new DeviceInstallerService("TODO").listAllApps("TODO");
+    System.out.println(s);
+
+  }
 
 }

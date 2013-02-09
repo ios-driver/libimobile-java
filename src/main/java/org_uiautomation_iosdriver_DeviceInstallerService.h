@@ -9,27 +9,11 @@ extern "C" {
 #endif
 /*
  * Class:     org_uiautomation_iosdriver_DeviceInstallerService
- * Method:    listAllApps
- * Signature: (Ljava/lang/String;)[Ljava/lang/String;
+ * Method:    listApps
+ * Signature: (Ljava/lang/String;I)Ljava/lang/String;
  */
-JNIEXPORT jobjectArray JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_listAllApps
-  (JNIEnv *, jobject, jstring);
-
-/*
- * Class:     org_uiautomation_iosdriver_DeviceInstallerService
- * Method:    listUserApps
- * Signature: (Ljava/lang/String;)[Ljava/lang/String;
- */
-JNIEXPORT jobjectArray JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_listUserApps
-  (JNIEnv *, jobject, jstring);
-
-/*
- * Class:     org_uiautomation_iosdriver_DeviceInstallerService
- * Method:    listSystemApps
- * Signature: (Ljava/lang/String;)[Ljava/lang/String;
- */
-JNIEXPORT jobjectArray JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_listSystemApps
-  (JNIEnv *, jobject, jstring);
+JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_listApps
+  (JNIEnv *, jobject, jstring, jint);
 
 /*
  * Class:     org_uiautomation_iosdriver_DeviceInstallerService

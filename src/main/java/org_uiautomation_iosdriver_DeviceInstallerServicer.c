@@ -42,8 +42,10 @@ static void notifier(const char *notification, void *unused)
 	notified = 1;
 }
 
-JNIEXPORT jobjectArray JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_listAllApps
-  (JNIEnv * env, jobject thiz, jstring todouuid){
+
+
+JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_listApps
+  (JNIEnv * env, jobject thiz, jstring todouuid,jint type){
 
     idevice_t phone = NULL;
     lockdownd_client_t client = NULL;
@@ -60,7 +62,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerSe
     }
     if (LOCKDOWN_E_SUCCESS != lockdownd_client_new_with_handshake(phone, &client, "ideviceinstaller")) {
     		fprintf(stderr, "Could not connect to lockdownd. Exiting.\n");
-    		//goto leave_cleanup;
+    		goto leave_cleanup;
     }
 
     if ((lockdownd_start_service
@@ -68,12 +70,12 @@ JNIEXPORT jobjectArray JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerSe
     		  &port) != LOCKDOWN_E_SUCCESS) || !port) {
     		fprintf(stderr,
     				"Could not start com.apple.mobile.notification_proxy!\n");
-    		//goto leave_cleanup;
+    		goto leave_cleanup;
     }
 
     if (np_client_new(phone, port, &np) != NP_E_SUCCESS) {
         fprintf(stderr, "Could not connect to notification_proxy!\n");
-        //goto leave_cleanup;
+        goto leave_cleanup;
     }
 
 
@@ -88,12 +90,12 @@ JNIEXPORT jobjectArray JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerSe
 		  &port) != LOCKDOWN_E_SUCCESS) || !port) {
 		fprintf(stderr,
 				"Could not start com.apple.mobile.installation_proxy!\n");
-		//goto leave_cleanup;
+		goto leave_cleanup;
 	}
 
 	if (instproxy_client_new(phone, port, &ipc) != INSTPROXY_E_SUCCESS) {
 		fprintf(stderr, "Could not connect to installation_proxy!\n");
-		//goto leave_cleanup;
+		goto leave_cleanup;
 	}
 
 	setbuf(stdout, NULL);
@@ -108,15 +110,16 @@ JNIEXPORT jobjectArray JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerSe
     int xml_mode = 0;
     plist_t client_opts = NULL;
 
-
-    // list user apps
-    //client_opts = instproxy_client_options_new();
-
-    // list all apps
-    client_opts = NULL;
-
-    // list system apps
-    //instproxy_client_options_add(client_opts, "ApplicationType", "System", NULL);
+    if (((int)type)==0){
+        // list all apps
+        client_opts = NULL;
+    }else if (((int)type) ==1){
+        // list system apps
+        instproxy_client_options_add(client_opts, "ApplicationType", "System", NULL);
+    }else {
+        // list user apps
+        client_opts = instproxy_client_options_new();
+    }
 
     instproxy_client_options_add(client_opts, "ApplicationType", "User", NULL);
     instproxy_error_t err;
@@ -126,12 +129,12 @@ JNIEXPORT jobjectArray JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerSe
     instproxy_client_options_free(client_opts);
     if (err != INSTPROXY_E_SUCCESS) {
         fprintf(stderr, "ERROR: instproxy_browse returned %d\n", err);
-        //goto leave_cleanup;
+        goto leave_cleanup;
     }
     if (!apps || (plist_get_node_type(apps) != PLIST_ARRAY)) {
         fprintf(stderr,
                 "ERROR: instproxy_browse returnd an invalid plist!\n");
-        //goto leave_cleanup;
+        goto leave_cleanup;
     }
 
     char *xml = NULL;
@@ -147,7 +150,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerSe
     plist_free(apps);
 
 
-    /*leave_cleanup:
+    leave_cleanup:
     	if (np) {
     		np_client_free(np);
     	}
@@ -170,20 +173,10 @@ JNIEXPORT jobjectArray JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerSe
     	}
     	if (options) {
     		free(options);
-    	} */
+    	}
 }
 
 
-JNIEXPORT jobjectArray JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_listUserApps
-  (JNIEnv * env, jobject thiz, jstring uuid){
-
-}
-
-
-JNIEXPORT jobjectArray JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_listSystemApps
-  (JNIEnv * env, jobject thiz, jstring uuid){
-
-}
 
 
 JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_uninstall

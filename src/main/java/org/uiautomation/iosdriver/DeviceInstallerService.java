@@ -57,7 +57,7 @@ public class DeviceInstallerService {
 
 
   public static void main(String[] args) throws java.lang.Exception {
-    List<ApplicationInfo> apps = new DeviceInstallerService("TODO").listUserApps();
+    List<ApplicationInfo> apps = new DeviceInstallerService("d1ce6333af579e27d166349dc8a1989503ba5b4f").listUserApps();
     System.out.println("found "+apps.size());
     for (ApplicationInfo info : apps){
       System.out.println(info);

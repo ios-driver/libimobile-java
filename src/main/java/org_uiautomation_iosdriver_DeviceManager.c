@@ -13,6 +13,8 @@ static idevice_t device = NULL;
 void throwException(JNIEnv *env,char * msg){
     (*env)->ThrowNew(env, (*env)->FindClass(env, "org/uiautomation/iosdriver/Exception"), msg);
 }
+
+
 JNIEXPORT jobject JNICALL Java_org_uiautomation_iosdriver_DeviceManager_getDeviceListNative  (JNIEnv *env, jobject thiz) {
     int i;
     char **dev_list = NULL;

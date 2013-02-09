@@ -28,8 +28,10 @@
 #include <zip.h>
 
 
+void throwException(JNIEnv *env,char * msg){
+    (*env)->ThrowNew(env, (*env)->FindClass(env, "org/uiautomation/iosdriver/services/DeviceInstallerException"), msg);
+}
 
-char *uuid = "d1ce6333af579e27d166349dc8a1989503ba5b4f";
 char *options = NULL;
 char *appid = NULL;
 int notified = 0;
@@ -45,7 +47,7 @@ static void notifier(const char *notification, void *unused)
 
 
 JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_listApps
-  (JNIEnv * env, jobject thiz, jstring todouuid,jint type){
+  (JNIEnv * env, jobject thiz, jstring device_uuid,jint type){
 
     idevice_t phone = NULL;
     lockdownd_client_t client = NULL;
@@ -54,27 +56,30 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService
     afc_client_t afc = NULL;
     uint16_t port = 0;
     int res = 0;
+    jstring dummy;
 
-
+    const char *uuid = (*env)->GetStringUTFChars(env,device_uuid,0);
     if (IDEVICE_E_SUCCESS != idevice_new(&phone, uuid)) {
-    		fprintf(stderr, "No iPhone found, is it plugged in?\n");
-    		return -1;
+            char msg[256];
+            strcpy(msg,uuid);
+            strcat(msg," not found, is it plugged in?");
+    		throwException(env,msg);
+    		goto leave_cleanup;
     }
     if (LOCKDOWN_E_SUCCESS != lockdownd_client_new_with_handshake(phone, &client, "ideviceinstaller")) {
-    		fprintf(stderr, "Could not connect to lockdownd. Exiting.\n");
+    		throwException(env, "Could not connect to lockdownd. Exiting.");
     		goto leave_cleanup;
     }
 
     if ((lockdownd_start_service
     		 (client, "com.apple.mobile.notification_proxy",
     		  &port) != LOCKDOWN_E_SUCCESS) || !port) {
-    		fprintf(stderr,
-    				"Could not start com.apple.mobile.notification_proxy!\n");
+    		throwException(env, "Could not start com.apple.mobile.notification_proxy!");
     		goto leave_cleanup;
     }
 
     if (np_client_new(phone, port, &np) != NP_E_SUCCESS) {
-        fprintf(stderr, "Could not connect to notification_proxy!\n");
+        throwException(env, "Could not connect to notification_proxy!");
         goto leave_cleanup;
     }
 
@@ -85,16 +90,13 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService
 	np_observe_notifications(np, noties);
 
     port = 0;
-	if ((lockdownd_start_service
-		 (client, "com.apple.mobile.installation_proxy",
-		  &port) != LOCKDOWN_E_SUCCESS) || !port) {
-		fprintf(stderr,
-				"Could not start com.apple.mobile.installation_proxy!\n");
+	if ((lockdownd_start_service(client, "com.apple.mobile.installation_proxy",&port) != LOCKDOWN_E_SUCCESS) || !port) {
+		throwException(env, "Could not start com.apple.mobile.installation_proxy!");
 		goto leave_cleanup;
 	}
 
 	if (instproxy_client_new(phone, port, &ipc) != INSTPROXY_E_SUCCESS) {
-		fprintf(stderr, "Could not connect to installation_proxy!\n");
+		throwException(env,"Could not connect to installation_proxy!");
 		goto leave_cleanup;
 	}
 
@@ -128,12 +130,11 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService
     err = instproxy_browse(ipc, client_opts, &apps);
     instproxy_client_options_free(client_opts);
     if (err != INSTPROXY_E_SUCCESS) {
-        fprintf(stderr, "ERROR: instproxy_browse returned %d\n", err);
+        throwException(env, "instproxy_browse error");
         goto leave_cleanup;
     }
     if (!apps || (plist_get_node_type(apps) != PLIST_ARRAY)) {
-        fprintf(stderr,
-                "ERROR: instproxy_browse returnd an invalid plist!\n");
+        throwException(env, "ERROR: instproxy_browse returnd an invalid plist!");
         goto leave_cleanup;
     }
 

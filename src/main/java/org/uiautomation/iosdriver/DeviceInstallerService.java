@@ -69,7 +69,8 @@ public class DeviceInstallerService {
       System.out.println("archive : "+ info);
       service.archive(info.getApplicationId(),1,0,"/Users/freynaud/build/archived");
     }
-    service.archive("com.yourcompany.UICatalog",0,0,"/Users/freynaud/build/archived");
+    service.install("/Users/freynaud/build/archived/com.yourcompany.UICatalog.ipa");
+    //service.archive("com.yourcompany.UICatalog",0,0,"/Users/freynaud/build/archived");
 
 
 

@@ -15,6 +15,11 @@ public class DeviceInstallerService {
   private static final int LIST_ALL_APPS = 0;
   private static final int LIST_SYSTEM_APPS = 1;
   private static final int LIST_USER_APPS = 2;
+
+  public String getUuid() {
+    return uuid;
+  }
+
   private final String uuid;
 
 
@@ -26,42 +31,48 @@ public class DeviceInstallerService {
     this.uuid = uuid;
   }
 
-  private native String listApps(String uuid, int type);
+  private native String listApps(int type);
 
-  private native void uninstall(String uuid, String appId);
+  private native void uninstall(String appId);
 
-  private native void install(String uuid, String archive);
+  private native void install(String archive);
 
-  private native void upgrade(String uuid, String archive);
+  private native void upgrade(String archive);
 
-  private native void archive(String uuid,
-                              String appId,
-                              boolean uninstall,
-                              boolean appOnly,
+  private native void archive(String appId,
+                              int uninstall,
+                              int appOnly,
                               String destinationFolder);
 
   public List<ApplicationInfo> listUserApps() {
-    String rawXML = listApps(uuid, LIST_USER_APPS);
+    String rawXML = listApps( LIST_USER_APPS);
     return extractApplications(rawXML);
   }
 
   public List<ApplicationInfo> listSystemApps() {
-    String rawXML = listApps(uuid, LIST_SYSTEM_APPS);
+    String rawXML = listApps( LIST_SYSTEM_APPS);
     return extractApplications(rawXML);
   }
 
   public List<ApplicationInfo> listAllApps() {
-    String rawXML = listApps(uuid, LIST_ALL_APPS);
+    String rawXML = listApps( LIST_ALL_APPS);
     return extractApplications(rawXML);
   }
 
 
   public static void main(String[] args) throws java.lang.Exception {
-    List<ApplicationInfo> apps = new DeviceInstallerService("d1ce6333af579e27d166349dc8a1989503ba5b4f").listUserApps();
-    System.out.println("found "+apps.size());
+    DeviceInstallerService service = new DeviceInstallerService("d1ce6333af579e27d166349dc8a1989503ba5b4f");
+    List<ApplicationInfo> apps = service.listUserApps();
+
+
     for (ApplicationInfo info : apps){
-      System.out.println(info);
+      System.out.println("archive : "+ info);
+      service.archive(info.getApplicationId(),1,0,"/Users/freynaud/build/archived");
     }
+    service.archive("com.yourcompany.UICatalog",0,0,"/Users/freynaud/build/archived");
+
+
+
 
   }
 

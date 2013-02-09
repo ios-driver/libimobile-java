@@ -55,7 +55,7 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_DeviceManager_getDevic
 
 
 
-    deviceid = (*env)->GetStringUTFChars(env,uuid,isCopy);
+    deviceid = (char*)(*env)->GetStringUTFChars(env,uuid,isCopy);
     //printf("recieved request for device info for device : %s\n",deviceid);
 
     ret = idevice_new(&device, deviceid);

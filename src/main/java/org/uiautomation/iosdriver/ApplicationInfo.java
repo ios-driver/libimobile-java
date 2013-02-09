@@ -62,8 +62,11 @@ public class ApplicationInfo {
     return null;
   }
 
+  public String getApplicationId(){
+    return (String)properties.get("CFBundleIdentifier");
+  }
   @Override
   public String toString() {
-    return properties.get("CFBundleIdentifier") +":\n"+properties.toString();
+    return getApplicationId() +":\n"+properties.toString();
   }
 }

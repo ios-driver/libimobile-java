@@ -40,8 +40,8 @@ int archive_mode = 0;
 int remove_archive_mode = 0;
 
 /**
-* get the uuid of the device from the java service.
-*/
+ * get the uuid of the device from the java service.
+ */
 char* getServiceUuid(JNIEnv * env, jobject thiz){
     jclass peerCls = (*env)->GetObjectClass(env,thiz);
     jmethodID mGetValue = (*env)->GetMethodID(env,peerCls, "getUuid","()Ljava/lang/String;");
@@ -185,20 +185,20 @@ static void do_wait_when_needed(){
 
 int init(JNIEnv * env,char*uuid,idevice_t * phone,lockdownd_client_t * client,instproxy_client_t * ipc,np_client_t * np,uint16_t *port){
     if (IDEVICE_E_SUCCESS != idevice_new(phone, uuid)) {
-            char msg[256];
-            strcpy(msg,uuid);
-            strcat(msg," not found, is it plugged in?");
-    		throwException(env,msg);
-    		return -1;
+        char msg[256];
+        strcpy(msg,uuid);
+        strcat(msg," not found, is it plugged in?");
+        throwException(env,msg);
+        return -1;
     }
     if (LOCKDOWN_E_SUCCESS != lockdownd_client_new_with_handshake(*phone, client, "ideviceinstaller")) {
-    		throwException(env, "Could not connect to lockdownd. Exiting.");
-    		return -1;
+        throwException(env, "Could not connect to lockdownd. Exiting.");
+        return -1;
     }
 
     if ((lockdownd_start_service(*client, "com.apple.mobile.notification_proxy", port) != LOCKDOWN_E_SUCCESS) || !*port) {
-    		throwException(env, "Could not start com.apple.mobile.notification_proxy!");
-    		return -1;
+        throwException(env, "Could not start com.apple.mobile.notification_proxy!");
+        return -1;
     }
     printf("port : %i\n",*port);
 
@@ -292,37 +292,37 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService
     plist_free(apps);
 
 
-    leave_cleanup:
-    	if (np) {
-    		np_client_free(np);
-    	}
-    	if (ipc) {
-    		instproxy_client_free(ipc);
-    	}
-    	if (afc) {
-    		afc_client_free(afc);
-    	}
-    	if (client) {
-    		lockdownd_client_free(client);
-    	}
-    	idevice_free(phone);
+leave_cleanup:
+    if (np) {
+        np_client_free(np);
+    }
+    if (ipc) {
+        instproxy_client_free(ipc);
+    }
+    if (afc) {
+        afc_client_free(afc);
+    }
+    if (client) {
+        lockdownd_client_free(client);
+    }
+    idevice_free(phone);
 
-    	if (uuid) {
-    		free((char*)uuid);
-    	}
-    	if (appid) {
-    		free(appid);
-    	}
-    	if (options) {
-    		free(options);
-    	}
+    if (uuid) {
+        free((char*)uuid);
+    }
+    if (appid) {
+        free(appid);
+    }
+    if (options) {
+        free(options);
+    }
 }
 
 
 
 
 JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_uninstall
-  (JNIEnv * env, jobject thiz,  jstring appId){
+(JNIEnv * env, jobject thiz,  jstring appId){
 
 }
 
@@ -344,203 +344,203 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_in
         goto leave_cleanup;
     }
 
-        plist_t sinf = NULL;
-		plist_t meta = NULL;
-		char *pkgname = NULL;
-		struct stat fst;
-		FILE *f = NULL;
-		uint64_t af = 0;
-		char buf[8192];
+    plist_t sinf = NULL;
+    plist_t meta = NULL;
+    char *pkgname = NULL;
+    struct stat fst;
+    FILE *f = NULL;
+    uint64_t af = 0;
+    char buf[8192];
 
-		port = 0;
-		if ((lockdownd_start_service(client, "com.apple.afc", &port) !=
-			 LOCKDOWN_E_SUCCESS) || !port) {
-			fprintf(stderr, "Could not start com.apple.afc!\n");
-			goto leave_cleanup;
-		}
+    port = 0;
+    if ((lockdownd_start_service(client, "com.apple.afc", &port) !=
+         LOCKDOWN_E_SUCCESS) || !port) {
+        fprintf(stderr, "Could not start com.apple.afc!\n");
+        goto leave_cleanup;
+    }
 
-		lockdownd_client_free(client);
-		client = NULL;
+    lockdownd_client_free(client);
+    client = NULL;
 
-		if (afc_client_new(phone, port, &afc) != INSTPROXY_E_SUCCESS) {
-			fprintf(stderr, "Could not connect to AFC!\n");
-			goto leave_cleanup;
-		}
+    if (afc_client_new(phone, port, &afc) != INSTPROXY_E_SUCCESS) {
+        fprintf(stderr, "Could not connect to AFC!\n");
+        goto leave_cleanup;
+    }
 
-		if (stat(appid, &fst) != 0) {
-			fprintf(stderr, "ERROR: stat: %s: %s\n", appid, strerror(errno));
-			goto leave_cleanup;
-		}
+    if (stat(appid, &fst) != 0) {
+        fprintf(stderr, "ERROR: stat: %s: %s\n", appid, strerror(errno));
+        goto leave_cleanup;
+    }
 
-		/* open install package */
-		int errp = 0;
-		struct zip *zf = zip_open(appid, 0, &errp);
-		if (!zf) {
-			fprintf(stderr, "ERROR: zip_open: %s: %d\n", appid, errp);
-			goto leave_cleanup;
-		}
+    /* open install package */
+    int errp = 0;
+    struct zip *zf = zip_open(appid, 0, &errp);
+    if (!zf) {
+        fprintf(stderr, "ERROR: zip_open: %s: %d\n", appid, errp);
+        goto leave_cleanup;
+    }
 
-		/* extract iTunesMetadata.plist from package */
-		char *zbuf = NULL;
-		uint32_t len = 0;
-		if (zip_f_get_contents(zf, "iTunesMetadata.plist", 0, &zbuf, &len) == 0) {
-			meta = plist_new_data(zbuf, len);
-		}
-		if (zbuf) {
-			free(zbuf);
-		}
+    /* extract iTunesMetadata.plist from package */
+    char *zbuf = NULL;
+    uint32_t len = 0;
+    if (zip_f_get_contents(zf, "iTunesMetadata.plist", 0, &zbuf, &len) == 0) {
+        meta = plist_new_data(zbuf, len);
+    }
+    if (zbuf) {
+        free(zbuf);
+    }
 
-		/* we need to get the CFBundleName first */
-		plist_t info = NULL;
-		zbuf = NULL;
-		len = 0;
-		if (zip_f_get_contents(zf, "Info.plist", ZIP_FL_NODIR, &zbuf, &len) < 0) {
-			zip_unchange_all(zf);
-			zip_close(zf);
-			goto leave_cleanup;
-		}
-		if (memcmp(zbuf, "bplist00", 8) == 0) {
-			plist_from_bin(zbuf, len, &info);
-		} else {
-			plist_from_xml(zbuf, len, &info);
-		}
-		free(zbuf);
+    /* we need to get the CFBundleName first */
+    plist_t info = NULL;
+    zbuf = NULL;
+    len = 0;
+    if (zip_f_get_contents(zf, "Info.plist", ZIP_FL_NODIR, &zbuf, &len) < 0) {
+        zip_unchange_all(zf);
+        zip_close(zf);
+        goto leave_cleanup;
+    }
+    if (memcmp(zbuf, "bplist00", 8) == 0) {
+        plist_from_bin(zbuf, len, &info);
+    } else {
+        plist_from_xml(zbuf, len, &info);
+    }
+    free(zbuf);
 
-		if (!info) {
-			fprintf(stderr, "Could not parse Info.plist!\n");
-			zip_unchange_all(zf);
-			zip_close(zf);
-			goto leave_cleanup;
-		}
+    if (!info) {
+        fprintf(stderr, "Could not parse Info.plist!\n");
+        zip_unchange_all(zf);
+        zip_close(zf);
+        goto leave_cleanup;
+    }
 
-		char *bundlename = NULL;
+    char *bundlename = NULL;
 
-		plist_t bname = plist_dict_get_item(info, "CFBundleName");
-		if (bname) {
-			plist_get_string_val(bname, &bundlename);
-		}
-		plist_free(info);
+    plist_t bname = plist_dict_get_item(info, "CFBundleName");
+    if (bname) {
+        plist_get_string_val(bname, &bundlename);
+    }
+    plist_free(info);
 
-		if (!bundlename) {
-			fprintf(stderr, "Could not determine CFBundleName!\n");
-			zip_unchange_all(zf);
-			zip_close(zf);
-			goto leave_cleanup;
-		}
+    if (!bundlename) {
+        fprintf(stderr, "Could not determine CFBundleName!\n");
+        zip_unchange_all(zf);
+        zip_close(zf);
+        goto leave_cleanup;
+    }
 
-		char *sinfname = NULL;
-	       	if (asprintf(&sinfname, "Payload/%s.app/SC_Info/%s.sinf", bundlename, bundlename) < 0) {
-			fprintf(stderr, "Out of memory!?\n");
-			goto leave_cleanup;
-		}
-		free(bundlename);
+    char *sinfname = NULL;
+    if (asprintf(&sinfname, "Payload/%s.app/SC_Info/%s.sinf", bundlename, bundlename) < 0) {
+        fprintf(stderr, "Out of memory!?\n");
+        goto leave_cleanup;
+    }
+    free(bundlename);
 
-		/* extract .sinf from package */
-		zbuf = NULL;
-		len = 0;
-		if (zip_f_get_contents(zf, sinfname, 0, &zbuf, &len) == 0) {
-			sinf = plist_new_data(zbuf, len);
-		}
-		free(sinfname);
-		if (zbuf) {
-			free(zbuf);
-		}
+    /* extract .sinf from package */
+    zbuf = NULL;
+    len = 0;
+    if (zip_f_get_contents(zf, sinfname, 0, &zbuf, &len) == 0) {
+        sinf = plist_new_data(zbuf, len);
+    }
+    free(sinfname);
+    if (zbuf) {
+        free(zbuf);
+    }
 
-		zip_unchange_all(zf);
-		zip_close(zf);
+    zip_unchange_all(zf);
+    zip_close(zf);
 
-		/* copy archive to device */
-		f = fopen(appid, "r");
-		if (!f) {
-			fprintf(stderr, "fopen: %s: %s\n", appid, strerror(errno));
-			goto leave_cleanup;
-		}
+    /* copy archive to device */
+    f = fopen(appid, "r");
+    if (!f) {
+        fprintf(stderr, "fopen: %s: %s\n", appid, strerror(errno));
+        goto leave_cleanup;
+    }
 
-		pkgname = NULL;
-		if (asprintf(&pkgname, "%s/%s", PKG_PATH, basename(appid)) < 0) {
-			fprintf(stderr, "Out of memory!?\n");
-			goto leave_cleanup;
-		}
+    pkgname = NULL;
+    if (asprintf(&pkgname, "%s/%s", PKG_PATH, basename(appid)) < 0) {
+        fprintf(stderr, "Out of memory!?\n");
+        goto leave_cleanup;
+    }
 
-		printf("Copying '%s' --> '%s'\n", appid, pkgname);
+    printf("Copying '%s' --> '%s'\n", appid, pkgname);
 
-		char **strs = NULL;
-		if (afc_get_file_info(afc, PKG_PATH, &strs) != AFC_E_SUCCESS) {
-			if (afc_make_directory(afc, PKG_PATH) != AFC_E_SUCCESS) {
-				fprintf(stderr, "WARNING: Could not create directory '%s' on device!\n", PKG_PATH);
-			}
-		}
-		if (strs) {
-			int i = 0;
-			while (strs[i]) {
-				free(strs[i]);
-				i++;
-			}
-			free(strs);
-		}
+    char **strs = NULL;
+    if (afc_get_file_info(afc, PKG_PATH, &strs) != AFC_E_SUCCESS) {
+        if (afc_make_directory(afc, PKG_PATH) != AFC_E_SUCCESS) {
+            fprintf(stderr, "WARNING: Could not create directory '%s' on device!\n", PKG_PATH);
+        }
+    }
+    if (strs) {
+        int i = 0;
+        while (strs[i]) {
+            free(strs[i]);
+            i++;
+        }
+        free(strs);
+    }
 
-		if ((afc_file_open(afc, pkgname, AFC_FOPEN_WRONLY, &af) !=
-			 AFC_E_SUCCESS) || !af) {
-			fclose(f);
-			fprintf(stderr, "afc_file_open on '%s' failed!\n", pkgname);
-			free(pkgname);
-			goto leave_cleanup;
-		}
+    if ((afc_file_open(afc, pkgname, AFC_FOPEN_WRONLY, &af) !=
+         AFC_E_SUCCESS) || !af) {
+        fclose(f);
+        fprintf(stderr, "afc_file_open on '%s' failed!\n", pkgname);
+        free(pkgname);
+        goto leave_cleanup;
+    }
 
-		size_t amount = 0;
-		do {
-			amount = fread(buf, 1, sizeof(buf), f);
-			if (amount > 0) {
-				uint32_t written, total = 0;
-				while (total < amount) {
-					written = 0;
-					if (afc_file_write(afc, af, buf, amount, &written) !=
-						AFC_E_SUCCESS) {
-						fprintf(stderr, "AFC Write error!\n");
-						break;
-					}
-					total += written;
-				}
-				if (total != amount) {
-					fprintf(stderr, "Error: wrote only %d of %zu\n", total,
-							amount);
-					afc_file_close(afc, af);
-					fclose(f);
-					free(pkgname);
-					goto leave_cleanup;
-				}
-			}
-		}
-		while (amount > 0);
+    size_t amount = 0;
+    do {
+        amount = fread(buf, 1, sizeof(buf), f);
+        if (amount > 0) {
+            uint32_t written, total = 0;
+            while (total < amount) {
+                written = 0;
+                if (afc_file_write(afc, af, buf, amount, &written) !=
+                    AFC_E_SUCCESS) {
+                    fprintf(stderr, "AFC Write error!\n");
+                    break;
+                }
+                total += written;
+            }
+            if (total != amount) {
+                fprintf(stderr, "Error: wrote only %d of %zu\n", total,
+                        amount);
+                afc_file_close(afc, af);
+                fclose(f);
+                free(pkgname);
+                goto leave_cleanup;
+            }
+        }
+    }
+    while (amount > 0);
 
-		afc_file_close(afc, af);
-		fclose(f);
+    afc_file_close(afc, af);
+    fclose(f);
 
-		printf("done.\n");
+    printf("done.\n");
 
-		/* perform installation or upgrade */
-		plist_t client_opts = instproxy_client_options_new();
-		if (sinf) {
-			instproxy_client_options_add(client_opts, "ApplicationSINF", sinf, NULL);
-		}
-		if (meta) {
-			instproxy_client_options_add(client_opts, "iTunesMetadata", meta, NULL);
-		}
-		if (install_mode) {
-			printf("Installing '%s'\n", pkgname);
-			instproxy_install(ipc, pkgname, client_opts, status_cb, NULL);
-		} else {
-			printf("Upgrading '%s'\n", pkgname);
-			instproxy_upgrade(ipc, pkgname, client_opts, status_cb, NULL);
-		}
-		instproxy_client_options_free(client_opts);
-		free(pkgname);
-		wait_for_op_complete = 1;
-		notification_expected = 1;
+    /* perform installation or upgrade */
+    plist_t client_opts = instproxy_client_options_new();
+    if (sinf) {
+        instproxy_client_options_add(client_opts, "ApplicationSINF", sinf, NULL);
+    }
+    if (meta) {
+        instproxy_client_options_add(client_opts, "iTunesMetadata", meta, NULL);
+    }
+    if (install_mode) {
+        printf("Installing '%s'\n", pkgname);
+        instproxy_install(ipc, pkgname, client_opts, status_cb, NULL);
+    } else {
+        printf("Upgrading '%s'\n", pkgname);
+        instproxy_upgrade(ipc, pkgname, client_opts, status_cb, NULL);
+    }
+    instproxy_client_options_free(client_opts);
+    free(pkgname);
+    wait_for_op_complete = 1;
+    notification_expected = 1;
 
-  do_wait_when_needed();
+    do_wait_when_needed();
 
- leave_cleanup:
+leave_cleanup:
     printf("cleanup");
     if (np) {
         np_client_free(np);
@@ -569,7 +569,7 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_in
 
 
 JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_upgrade
-  (JNIEnv * env, jobject thiz,  jstring appId){
+(JNIEnv * env, jobject thiz,  jstring appId){
 
 }
 
@@ -580,9 +580,9 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_ar
     int remove_after_copy = 1;
     int skip_uninstall;
     if (uninstall){
-       skip_uninstall = 0;
+        skip_uninstall = 0;
     } else {
-       skip_uninstall =1;
+        skip_uninstall =1;
     }
 
     int app_only = appOnly;
@@ -619,25 +619,25 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_ar
             fprintf(stderr, "ERROR: stat: %s: %s\n", copy_path, strerror(errno));
             free(copy_path);
             goto leave_cleanup;
-    }
-    if (!S_ISDIR(fst.st_mode)) {
-        fprintf(stderr, "ERROR: '%s' is not a directory as expected.\n", copy_path);
-        free(copy_path);
-        goto leave_cleanup;
-    }
+        }
+        if (!S_ISDIR(fst.st_mode)) {
+            fprintf(stderr, "ERROR: '%s' is not a directory as expected.\n", copy_path);
+            free(copy_path);
+            goto leave_cleanup;
+        }
 
-    port = 0;
-    if ((lockdownd_start_service(client, "com.apple.afc", &port) != LOCKDOWN_E_SUCCESS) || !port) {
-        fprintf(stderr, "Could not start com.apple.afc!\n");
-        free(copy_path);
-        goto leave_cleanup;
-    }
-    lockdownd_client_free(client);
-    client = NULL;
+        port = 0;
+        if ((lockdownd_start_service(client, "com.apple.afc", &port) != LOCKDOWN_E_SUCCESS) || !port) {
+            fprintf(stderr, "Could not start com.apple.afc!\n");
+            free(copy_path);
+            goto leave_cleanup;
+        }
+        lockdownd_client_free(client);
+        client = NULL;
 
-    if (afc_client_new(phone, port, &afc) != INSTPROXY_E_SUCCESS) {
-        fprintf(stderr, "Could not connect to AFC!\n");
-        goto leave_cleanup;
+        if (afc_client_new(phone, port, &afc) != INSTPROXY_E_SUCCESS) {
+            fprintf(stderr, "Could not connect to AFC!\n");
+            goto leave_cleanup;
         }
     }
 
@@ -771,8 +771,8 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_ar
 
             port = 0;
             if ((lockdownd_start_service(client, "com.apple.mobile.installation_proxy",&port) != LOCKDOWN_E_SUCCESS) || !port) {
-            		fprintf(stderr,"Could not start com.apple.mobile.installation_proxy!\n");
-            		goto leave_cleanup;
+                fprintf(stderr,"Could not start com.apple.mobile.installation_proxy!\n");
+                goto leave_cleanup;
             }
 
             if (instproxy_client_new(phone, port, &ipc) != INSTPROXY_E_SUCCESS) {
@@ -793,31 +793,30 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_ar
     }
 
 
- leave_cleanup:
-    printf("cleanup");
-        if (np) {
-            np_client_free(np);
-        }
-        if (ipc) {
-            instproxy_client_free(ipc);
-        }
-        if (afc) {
-            afc_client_free(afc);
-        }
-        if (client) {
-            lockdownd_client_free(client);
-        }
-        idevice_free(phone);
+leave_cleanup:
+    if (np) {
+        np_client_free(np);
+    }
+    if (ipc) {
+        instproxy_client_free(ipc);
+    }
+    if (afc) {
+        afc_client_free(afc);
+    }
+    if (client) {
+        lockdownd_client_free(client);
+    }
+    idevice_free(phone);
 
-        if (uuid) {
-            free((char*)uuid);
-        }
-        if (appid) {
-            free((char*)appid);
-        }
-        if (options) {
-            free(options);
-        }
+    if (uuid) {
+        free((char*)uuid);
+    }
+    if (appid) {
+        free((char*)appid);
+    }
+    if (options) {
+        free(options);
+    }
 
 
 }

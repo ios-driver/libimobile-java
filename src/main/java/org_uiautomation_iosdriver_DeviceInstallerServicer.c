@@ -230,7 +230,6 @@ int init(JNIEnv * env,char*uuid,idevice_t * phone,lockdownd_client_t * client,in
 		last_status = NULL;
 	}
 	notification_expected = 0;
-	printf("init.\n");
 	return 0;
 }
 
@@ -250,7 +249,7 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService
         goto leave_cleanup;
     }
 
-    printf("port : %i",port);
+
     int xml_mode = 0;
     plist_t client_opts = NULL;
 
@@ -341,54 +340,9 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_in
     int res = 0;
 
 
-            if (IDEVICE_E_SUCCESS != idevice_new(&phone, uuid)) {
-                    char msg[256];
-                    strcpy(msg,uuid);
-                    strcat(msg," not found, is it plugged in?");
-            		throwException(env,msg);
-            		goto leave_cleanup;
-            }
-            if (LOCKDOWN_E_SUCCESS != lockdownd_client_new_with_handshake(phone, &client, "ideviceinstaller")) {
-            		throwException(env, "Could not connect to lockdownd. Exiting.");
-            		goto leave_cleanup;
-            }
-
-            if ((lockdownd_start_service
-            		 (client, "com.apple.mobile.notification_proxy",
-            		  &port) != LOCKDOWN_E_SUCCESS) || !port) {
-            		throwException(env, "Could not start com.apple.mobile.notification_proxy!");
-            		goto leave_cleanup;
-            }
-
-            if (np_client_new(phone, port, &np) != NP_E_SUCCESS) {
-                throwException(env, "Could not connect to notification_proxy!");
-                goto leave_cleanup;
-            }
-
-
-            np_set_notify_callback(np, notifier, NULL);
-
-            const char *noties[3] = { NP_APP_INSTALLED, NP_APP_UNINSTALLED, NULL };
-        	np_observe_notifications(np, noties);
-
-            port = 0;
-        	if ((lockdownd_start_service(client, "com.apple.mobile.installation_proxy",&port) != LOCKDOWN_E_SUCCESS) || !port) {
-        		throwException(env, "Could not start com.apple.mobile.installation_proxy!");
-        		goto leave_cleanup;
-        	}
-
-        	if (instproxy_client_new(phone, port, &ipc) != INSTPROXY_E_SUCCESS) {
-        		throwException(env,"Could not connect to installation_proxy!");
-        		goto leave_cleanup;
-        	}
-
-        	setbuf(stdout, NULL);
-
-        	if (last_status) {
-        		free(last_status);
-        		last_status = NULL;
-        	}
-        	notification_expected = 0;
+    if ( init(env,(char*)uuid,&phone,&client,&ipc,&np,&port) == -1){
+        goto leave_cleanup;
+    }
 
         plist_t sinf = NULL;
 		plist_t meta = NULL;
@@ -646,55 +600,9 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_ar
     int res = 0;
 
 
-    if (IDEVICE_E_SUCCESS != idevice_new(&phone, uuid)) {
-      char msg[256];
-      strcpy(msg,uuid);
-      strcat(msg," not found, is it plugged in?");
-      throwException(env,msg);
-      goto leave_cleanup;
-    }
-    if (LOCKDOWN_E_SUCCESS != lockdownd_client_new_with_handshake(phone, &client, "ideviceinstaller")) {
-        throwException(env, "Could not connect to lockdownd. Exiting.");
+    if ( init(env,(char*)uuid,&phone,&client,&ipc,&np,&port) == -1){
         goto leave_cleanup;
     }
-
-    if ((lockdownd_start_service
-         (client, "com.apple.mobile.notification_proxy",
-          &port) != LOCKDOWN_E_SUCCESS) || !port) {
-        throwException(env, "Could not start com.apple.mobile.notification_proxy!");
-        goto leave_cleanup;
-    }
-
-    if (np_client_new(phone, port, &np) != NP_E_SUCCESS) {
-      throwException(env, "Could not connect to notification_proxy!");
-      goto leave_cleanup;
-    }
-
-
-    np_set_notify_callback(np, notifier, NULL);
-
-    const char *noties[3] = { NP_APP_INSTALLED, NP_APP_UNINSTALLED, NULL };
-    np_observe_notifications(np, noties);
-
- run_again:
-    port = 0;
-    if ((lockdownd_start_service(client, "com.apple.mobile.installation_proxy",&port) != LOCKDOWN_E_SUCCESS) || !port) {
-        throwException(env, "Could not start com.apple.mobile.installation_proxy!");
-        goto leave_cleanup;
-    }
-
-    if (instproxy_client_new(phone, port, &ipc) != INSTPROXY_E_SUCCESS) {
-        throwException(env,"Could not connect to installation_proxy!");
-        goto leave_cleanup;
-    }
-
-    setbuf(stdout, NULL);
-
-    if (last_status) {
-        free(last_status);
-        last_status = NULL;
-    }
-    notification_expected = 0;
 
     if (skip_uninstall || app_only) {
         client_opts = instproxy_client_options_new();

@@ -32,11 +32,11 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_stop(JNIEnv 
     return;	
   }
 
-JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_WebInspector_receiveMessage(JNIEnv* env,   jobject thiz, jstring uuid){
+JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_WebInspector_receiveMessage(JNIEnv* env,   jobject thiz, jstring uuid,jint timeout_ms){
 
     char * buf = NULL;
     uint32_t length = 0;
-    webinspector_error_t error = webinspector_receive_xml_plist(client, &buf, &length);
+    webinspector_error_t error = webinspector_receive_xml_plist(client, &buf, &length,timeout_ms);
     if (error != WEBINSPECTOR_E_SUCCESS || !buf || length == 0) {
         printf("> Error reading: %d\n", error);
     } else {

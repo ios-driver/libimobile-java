@@ -56,9 +56,6 @@
                 <configuration>
 
                     <archive>
-                        <manifest>
-                            <mainClass>HelloJNI</mainClass>
-                        </manifest>
 
                     </archive>
                     <descriptorRefs>

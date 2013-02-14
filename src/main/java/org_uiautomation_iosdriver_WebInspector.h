@@ -29,7 +29,7 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_stop
  * Signature: ()Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_WebInspector_receiveMessage
-  (JNIEnv *, jobject, jstring);
+  (JNIEnv *, jobject, jstring,jint);
 
 /*
  * Class:     org_uiautomation_iosdriver_WebInspector

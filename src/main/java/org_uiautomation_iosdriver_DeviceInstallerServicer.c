@@ -200,7 +200,6 @@ int init(JNIEnv * env,char*uuid,idevice_t * phone,lockdownd_client_t * client,in
         throwException(env, "Could not start com.apple.mobile.notification_proxy!");
         return -1;
     }
-    printf("port : %i\n",*port);
 
     if (np_client_new(*phone, *port, np) != NP_E_SUCCESS) {
         throwException(env, "Could not connect to notification_proxy!");
@@ -515,8 +514,6 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_in
 
     afc_file_close(afc, af);
     fclose(f);
-
-    printf("done.\n");
 
     /* perform installation or upgrade */
     plist_t client_opts = instproxy_client_options_new();

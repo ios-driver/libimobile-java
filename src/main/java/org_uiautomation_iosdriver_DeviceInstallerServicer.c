@@ -28,10 +28,10 @@
 #include <zip.h>
 
 
-void throwException(JNIEnv *env,char * msg){
+/*void throwException(JNIEnv *env,char * msg){
     printf("Exception %s\n",msg);
     (*env)->ThrowNew(env, (*env)->FindClass(env, "org/uiautomation/iosdriver/services/DeviceInstallerException"), msg);
-}
+} */
 
 
 const char PKG_PATH[] = "PublicStaging";

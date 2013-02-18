@@ -17,7 +17,7 @@ public class DeviceManager {
   private volatile boolean run = true;
 
   static {
-    System.loadLibrary("devicemanager");
+    System.loadLibrary("iosdriver");
   }
 
 

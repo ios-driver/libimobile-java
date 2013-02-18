@@ -10,7 +10,7 @@ package org.uiautomation.iosdriver;
 public class WebInspector {
 
   static {
-    System.loadLibrary("webinspector");
+    System.loadLibrary("iosdriver");
   }
 
   private final String uuid;

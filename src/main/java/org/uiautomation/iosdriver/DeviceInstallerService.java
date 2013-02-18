@@ -24,7 +24,7 @@ public class DeviceInstallerService {
 
 
   static {
-    System.loadLibrary("deviceinstallerservice");
+    System.loadLibrary("iosdriver");
   }
 
   public DeviceInstallerService(String uuid) {

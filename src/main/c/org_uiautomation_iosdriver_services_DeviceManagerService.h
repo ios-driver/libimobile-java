@@ -2,8 +2,8 @@
 #include <jni.h>
 /* Header for class org_uiautomation_iosdriver_DeviceManager */
 
-#ifndef _Included_org_uiautomation_iosdriver_DeviceManagerService
-#define _Included_org_uiautomation_iosdriver_DeviceManagerService
+#ifndef _Included_org_uiautomation_iosdriver_services_DeviceManagerService
+#define _Included_org_uiautomation_iosdriver_services_DeviceManagerService
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -12,7 +12,7 @@ extern "C" {
  * Method:    getDeviceList
  * Signature: ()[Ljava/lang/String;
  */
-JNIEXPORT jobjectArray JNICALL Java_org_uiautomation_iosdriver_DeviceManagerService_getDeviceListNative
+JNIEXPORT jobjectArray JNICALL Java_org_uiautomation_iosdriver_services_DeviceManagerService_getDeviceListNative
   (JNIEnv *, jobject);
 
 /*
@@ -20,7 +20,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_uiautomation_iosdriver_DeviceManagerServ
  * Method:    getDeviceInfo
  * Signature: (Ljava/lang/String;)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_DeviceManagerService_getDeviceInfoNative
+JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceManagerService_getDeviceInfoNative
   (JNIEnv *, jobject, jstring);
 
 #ifdef __cplusplus

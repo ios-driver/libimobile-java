@@ -1,7 +1,9 @@
-package org.uiautomation.iosdriver;
+package org.uiautomation.iosdriver.services;
 
 import com.google.common.collect.Lists;
 
+import org.uiautomation.iosdriver.DeviceDetector;
+import org.uiautomation.iosdriver.DeviceInfo;
 import org.uiautomation.iosdriver.services.jnitools.JNIService;
 
 import java.io.UnsupportedEncodingException;

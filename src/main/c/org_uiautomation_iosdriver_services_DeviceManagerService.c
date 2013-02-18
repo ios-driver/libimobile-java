@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "org_uiautomation_iosdriver_DeviceManagerService.h"
+#include "org_uiautomation_iosdriver_services_DeviceManagerService.h"
 #include <libimobiledevice/libimobiledevice.h>
 #include <libimobiledevice/lockdown.h>
 #include <plist/plist.h>
@@ -16,7 +16,7 @@ void throwException(JNIEnv *env,char * msg){
 }
 
 
-JNIEXPORT jobject JNICALL Java_org_uiautomation_iosdriver_DeviceManagerService_getDeviceListNative  (JNIEnv *env, jobject thiz) {
+JNIEXPORT jobject JNICALL Java_org_uiautomation_iosdriver_services_DeviceManagerService_getDeviceListNative  (JNIEnv *env, jobject thiz) {
     int i;
     char **dev_list = NULL;
 
@@ -41,7 +41,7 @@ JNIEXPORT jobject JNICALL Java_org_uiautomation_iosdriver_DeviceManagerService_g
 
 
 
-JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_DeviceManagerService_getDeviceInfoNative(JNIEnv *env , jobject thiz, jstring uuid){
+JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceManagerService_getDeviceInfoNative(JNIEnv *env , jobject thiz, jstring uuid){
     char *deviceid = NULL;
     jboolean *isCopy = NULL;
     idevice_error_t ret = IDEVICE_E_UNKNOWN_ERROR;

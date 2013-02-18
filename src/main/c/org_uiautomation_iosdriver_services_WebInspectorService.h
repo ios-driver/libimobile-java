@@ -2,8 +2,8 @@
 #include <jni.h>
 /* Header for class org_uiautomation_iosdriver_WebInspector */
 
-#ifndef _Included_org_uiautomation_iosdriver_WebInspector
-#define _Included_org_uiautomation_iosdriver_WebInspector
+#ifndef _Included_org_uiautomation_iosdriver_services_WebInspectorService
+#define _Included_org_uiautomation_iosdriver_services_WebInspectorService
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -12,7 +12,7 @@ extern "C" {
  * Method:    start
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_start
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_WebInspectorService_start
   (JNIEnv *, jobject, jstring);
 
 /*
@@ -20,7 +20,7 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_start
  * Method:    stop
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_stop
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_WebInspectorService_stop
   (JNIEnv *, jobject, jstring);
 
 /*
@@ -28,7 +28,7 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_stop
  * Method:    receiveMessage
  * Signature: ()Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_WebInspector_receiveMessage
+JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_WebInspectorService_receiveMessage
   (JNIEnv *, jobject, jstring,jint);
 
 /*
@@ -36,7 +36,7 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_WebInspector_receiveMe
  * Method:    sendMessage
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_sendMessage
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_WebInspectorService_sendMessage
   (JNIEnv *, jobject, jstring, jstring);
 
 #ifdef __cplusplus

@@ -2,14 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "org_uiautomation_iosdriver_WebInspector.h"
+#include "org_uiautomation_iosdriver_services_WebInspectorService.h"
 #include <libimobiledevice/libimobiledevice.h>
 #include <libimobiledevice/webinspector.h>
 
 static webinspector_client_t client = NULL;
 static idevice_t device = NULL;
 
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_start(JNIEnv * env, jobject thiz, jstring uuid){
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_WebInspectorService_start(JNIEnv * env, jobject thiz, jstring uuid){
 	if (IDEVICE_E_SUCCESS != idevice_new(&device, NULL)) {
         printf("No device found, is it plugged in?\n");
         return;
@@ -26,14 +26,14 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_start(JNIEnv
   }
 
 
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_stop(JNIEnv * env, jobject thiz, jstring uuid){
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_WebInspectorService_stop(JNIEnv * env, jobject thiz, jstring uuid){
   	printf("Stop!\n");
   	webinspector_client_free(client);
   	idevice_free(device);
     return;	
   }
 
-JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_WebInspector_receiveMessage(JNIEnv * env, jobject thiz, jstring uuid, jint timeout_ms){
+JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_WebInspectorService_receiveMessage(JNIEnv * env, jobject thiz, jstring uuid, jint timeout_ms){
 	plist_t plist = NULL;
 
 	webinspector_error_t res = webinspector_receive_with_timeout(client, &plist, timeout_ms);
@@ -60,7 +60,7 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_WebInspector_receiveMe
   	return retval;
 }
 
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_sendMessage(JNIEnv * env, jobject thiz, jstring uuid, jstring command){
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_WebInspectorService_sendMessage(JNIEnv * env, jobject thiz, jstring uuid, jstring command){
 	char const * const xml = (*env)->GetStringUTFChars(env, command, 0);
 	int const xmllength = strlen(xml);
 

@@ -1,5 +1,5 @@
 #include <jni.h>
-#include "org_uiautomation_iosdriver_DeviceInstallerService.h"
+#include "org_uiautomation_iosdriver_services_DeviceInstallerService.h"
 
 
 #ifdef HAVE_CONFIG_H
@@ -232,7 +232,7 @@ int init(JNIEnv * env,char*uuid,idevice_t * phone,lockdownd_client_t * client,in
 	return 0;
 }
 
-JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_listApps(JNIEnv * env, jobject thiz, jint type){
+JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_listApps(JNIEnv * env, jobject thiz, jint type){
 
     const char *uuid = getServiceUuid(env,thiz);
     idevice_t phone = NULL;
@@ -320,13 +320,13 @@ leave_cleanup:
 
 
 
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_uninstall
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_uninstall
 (JNIEnv * env, jobject thiz,  jstring appId){
 
 }
 
 
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_install(JNIEnv * env, jobject thiz,  jstring path){
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_install(JNIEnv * env, jobject thiz,  jstring path){
     int install_mode =1;
     char *appid = (char*)(*env)->GetStringUTFChars(env,path,0);;
     const char *uuid = getServiceUuid(env,thiz);
@@ -565,13 +565,13 @@ leave_cleanup:
 }
 
 
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_upgrade
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_upgrade
 (JNIEnv * env, jobject thiz,  jstring appId){
 
 }
 
 
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_DeviceInstallerService_archive(JNIEnv * env, jobject thiz, jstring app, jint uninstall, jint appOnly, jstring destinationFolder){
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_archive(JNIEnv * env, jobject thiz, jstring app, jint uninstall, jint appOnly, jstring destinationFolder){
 
     char *copy_path = (char*)(*env)->GetStringUTFChars(env,destinationFolder,0);;
     int remove_after_copy = 1;

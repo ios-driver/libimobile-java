@@ -1,15 +1,17 @@
-package org.uiautomation.iosdriver;
+package org.uiautomation.iosdriver.services;
 
 import com.dd.plist.NSArray;
 import com.dd.plist.NSObject;
 import com.dd.plist.XMLPropertyListParser;
+import org.uiautomation.iosdriver.*;
+import org.uiautomation.iosdriver.services.jnitools.JNIService;
 
 import java.lang.Exception;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class DeviceInstallerService {
+public class DeviceInstallerService extends JNIService {
 
   private static final Logger log = Logger.getLogger(DeviceInstallerService.class.getName());
   private static final int LIST_ALL_APPS = 0;
@@ -23,9 +25,7 @@ public class DeviceInstallerService {
   private final String uuid;
 
 
-  static {
-    System.loadLibrary("iosdriver");
-  }
+
 
   public DeviceInstallerService(String uuid) {
     this.uuid = uuid;

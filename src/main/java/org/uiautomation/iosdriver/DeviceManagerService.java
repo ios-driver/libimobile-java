@@ -3,7 +3,6 @@ package org.uiautomation.iosdriver;
 import com.google.common.collect.Lists;
 
 import org.uiautomation.iosdriver.services.jnitools.JNIService;
-import org.uiautomation.iosdriver.services.jnitools.JniLoader;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.Exception;
@@ -12,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DeviceManager extends JNIService {
+public class DeviceManagerService extends JNIService {
 
   private final DeviceDetector detector;
   private Thread listeningThread;
@@ -22,7 +21,7 @@ public class DeviceManager extends JNIService {
 
 
 
-  public DeviceManager(DeviceDetector detector) {
+  public DeviceManagerService(DeviceDetector detector) {
     this.detector = detector;
   }
 
@@ -86,7 +85,7 @@ public class DeviceManager extends JNIService {
 
 
   public static void main(String[] args) throws InterruptedException {
-    DeviceManager manager = new DeviceManager(new DeviceDetector() {
+    DeviceManagerService manager = new DeviceManagerService(new DeviceDetector() {
       @Override
       public void onDeviceAdded(DeviceInfo deviceInfo) {
         System.out.println(

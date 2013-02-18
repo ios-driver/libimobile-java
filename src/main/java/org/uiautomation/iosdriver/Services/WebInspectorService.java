@@ -1,4 +1,4 @@
-package org.uiautomation.iosdriver;
+package org.uiautomation.iosdriver.services;
 
 import org.uiautomation.iosdriver.services.jnitools.JNIService;
 

@@ -1,5 +1,6 @@
 #include <jni.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "org_uiautomation_iosdriver_DeviceManager.h"
 #include <libimobiledevice/libimobiledevice.h>

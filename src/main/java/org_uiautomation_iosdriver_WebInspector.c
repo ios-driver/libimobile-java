@@ -1,5 +1,6 @@
 #include <jni.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "org_uiautomation_iosdriver_WebInspector.h"
 #include <libimobiledevice/libimobiledevice.h>
@@ -32,28 +33,48 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_stop(JNIEnv 
     return;	
   }
 
-JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_WebInspector_receiveMessage(JNIEnv* env,   jobject thiz, jstring uuid,jint timeout_ms){
+JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_WebInspector_receiveMessage(JNIEnv * env, jobject thiz, jstring uuid, jint timeout_ms){
+	plist_t plist = NULL;
 
-    char * buf = NULL;
-    uint32_t length = 0;
-    webinspector_error_t error = webinspector_receive_xml_plist(client, &buf, &length,timeout_ms);
-    if (error != WEBINSPECTOR_E_SUCCESS || !buf || length == 0) {
-        printf("> Error reading: %d\n", error);
-    } else {
-        printf("> %d bytes\n%s===== end of message =====\n\n", length, buf);
-    }
-    jstring retval = (*env)->NewStringUTF(env, buf);
-    free(buf);
+	webinspector_error_t res = webinspector_receive_with_timeout(client, &plist, timeout_ms);
+	if (res != WEBINSPECTOR_E_SUCCESS || plist == NULL) {
+		printf("Error receiving.\n");
+		plist_free(plist);
+		return NULL;
+	}
+
+	char * xml = NULL;
+	int xmllength = 0;
+	plist_to_xml(plist, &xml, &xmllength);
+	plist_free(plist);
+	
+	if (!*xml) {
+		printf("Error converting plist to xml.\n");
+		return NULL;
+	}
+
+	printf("> %d bytes\n%s===== end of message =====\n\n", xmllength, xml);
+    jstring retval = (*env)->NewStringUTF(env, xml);
+    free(xml);
 
   	return retval;
-  }
+}
 
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_sendMessage(JNIEnv * env, jobject thiz, jstring uuid,jstring command){
-	const char * str = (*env)->GetStringUTFChars(env,command,0);
-    webinspector_send_xml_plist(client, str, strlen(str));
-    printf("Sent message : %s\n",str);
-    (*env)->ReleaseStringUTFChars(env,command,str);
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_WebInspector_sendMessage(JNIEnv * env, jobject thiz, jstring uuid, jstring command){
+	char const * const xml = (*env)->GetStringUTFChars(env, command, 0);
+	int const xmllength = strlen(xml);
+
+	plist_t plist = NULL;
+	plist_from_xml(xml, xmllength, &plist);
+	if (!plist) {
+		printf("Failed to create plist from xml.\n");
+		return;
+	}
+
+	webinspector_send(client, plist);
+	plist_free(plist);
+
+    printf("Sent message : %s\n", xml);
+    (*env)->ReleaseStringUTFChars(env, command, xml);
   	return;
-  }
-
-
+}

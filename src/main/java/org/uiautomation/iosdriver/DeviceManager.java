@@ -2,6 +2,9 @@ package org.uiautomation.iosdriver;
 
 import com.google.common.collect.Lists;
 
+import org.uiautomation.iosdriver.services.jnitools.JNIService;
+import org.uiautomation.iosdriver.services.jnitools.JniLoader;
+
 import java.io.UnsupportedEncodingException;
 import java.lang.Exception;
 import java.util.Arrays;
@@ -9,16 +12,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DeviceManager {
+public class DeviceManager extends JNIService {
 
   private final DeviceDetector detector;
   private Thread listeningThread;
   private final Map<String, DeviceInfo> deviceByUuid = new HashMap<String, DeviceInfo>();
   private volatile boolean run = true;
 
-  static {
-    System.loadLibrary("iosdriver");
-  }
+
 
 
   public DeviceManager(DeviceDetector detector) {

@@ -1,17 +1,10 @@
 package org.uiautomation.iosdriver;
 
-/**
- * ➜  java git:(master) ✗ gcc   -I/System/Library/Frameworks/JavaVM.framework/Headers
- * -I/opt/local/include/ -I/Users/freynaud/Documents/workspace/libimobiledevice/include -c
- * org_uiautomation_iosdriver_WebInspector.c ➜  javagit:(master) ✗ gcc  -limobiledevicec -dynamiclib
- * -o libwebinspector.jnilib org_uiautomation_iosdriver_WebInspector.o ➜  java  sudo mv
- * libwebinspector.jnilib /usr/lib/java
- */
-public class WebInspector {
+import org.uiautomation.iosdriver.services.jnitools.JNIService;
 
-  static {
-    System.loadLibrary("iosdriver");
-  }
+
+public class WebInspectorService extends JNIService{
+
 
   private final String uuid;
 
@@ -24,7 +17,7 @@ public class WebInspector {
   private native void sendMessage(String uuid, String xml);
 
 
-  public WebInspector(String uuid) {
+  public WebInspectorService(String uuid) {
     this.uuid = uuid;
   }
 
@@ -49,7 +42,7 @@ public class WebInspector {
 
 
   public static void main2(String[] args) {
-    final WebInspector inspector = new WebInspector("d1ce6333af579e27d166349dc8a1989503ba5b4f");
+    final WebInspectorService inspector = new WebInspectorService("d1ce6333af579e27d166349dc8a1989503ba5b4f");
     inspector.start();
     inspector.receiveMessage();
 
@@ -70,7 +63,7 @@ public class WebInspector {
 
 
   public static void main(String[] args) throws InterruptedException {
-    final WebInspector inspector = new WebInspector("uuid");
+    final WebInspectorService inspector = new WebInspectorService("uuid");
     inspector.start();
     final Monitor m = new Monitor();
     new Thread(new Runnable() {

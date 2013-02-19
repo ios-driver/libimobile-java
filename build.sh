@@ -1,7 +1,10 @@
 #!/bin/bash
 
-#mvn clean
-#mkdir target
+VERSION="0.6-SNAPSHOT"
+
+mvn clean
+rm -f src/main/resources/generated/libiosdriver.jnilib
+mkdir target
 gcc   -I/System/Library/Frameworks/JavaVM.framework/Headers -I/opt/local/include/ -I/Users/freynaud/Documents/workspace/libimobiledevice/include -c src/main/c/org_uiautomation_iosdriver_services_WebInspectorService.c  -o target/a.o
 gcc   -I/System/Library/Frameworks/JavaVM.framework/Headers -I/opt/local/include -I/Users/freynaud/Documents/workspace/libimobiledevice/include  -c src/main/c/org_uiautomation_iosdriver_services_DeviceManagerService.c  -o target/b.o
 gcc   -I/System/Library/Frameworks/JavaVM.framework/Headers -I/opt/local/include -I/Users/freynaud/Documents/workspace/libimobiledevice/include -I/opt/local/lib/libzip/include  -c src/main/c/org_uiautomation_iosdriver_services_DeviceInstallerService.c -o target/c.o
@@ -33,13 +36,11 @@ gcc   -dynamiclib target/a.o target/b.o target/c.o  \
   /opt/local/lib/libcrypto.a \
   /opt/local/lib/libz.a \
   /opt/local/lib/libssl.a \
-  -o libiosdriver_static.jnilib
+  -o src/main/resources/generated/libiosdriver.jnilib
 
-
-mv libiosdriver_static.jnilib src/main/resources/generated/libiosdriver.jnilib
 
 mvn package
-mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file -Dfile=target/ios-driver-jni-1.0-SNAPSHOT.jar -DgroupId=org.uiautomation -DartifactId=ios-driver-jni -Dversion=1.0-SNAPSHOT -Dpackaging=jar -DlocalRepositoryPath=/Users/freynaud/Documents/workspace/ios-driver/server/libs
+mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file -Dfile=target/ios-driver-jni-0.6-SNAPSHOT.jar -DgroupId=org.uiautomation -DartifactId=ios-driver-jni -Dversion=0.6-SNAPSHOT -Dpackaging=jar -DlocalRepositoryPath=/Users/freynaud/Documents/workspace/ios-driver/server/libs
 
 
 

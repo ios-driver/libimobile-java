@@ -1,0 +1,12 @@
+cd /usr/local/lib
+lib git:(master) otool  -L libimobiledevice.dylib
+libimobiledevice.dylib:
+	/usr/local/lib/libimobiledevice.4.dylib (compatibility version 5.0.0, current version 5.1.0)
+	/opt/local/lib/libplist.1.dylib (compatibility version 1.0.0, current version 1.1.8)
+	/usr/local/lib/libusbmuxd.2.dylib (compatibility version 2.0.0, current version 0.0.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 169.3.0)
+	/opt/local/lib/libssl.1.0.0.dylib (compatibility version 1.0.0, current version 1.0.0)
+	/opt/local/lib/libcrypto.1.0.0.dylib (compatibility version 1.0.0, current version 1.0.0)
+
+
+	/usr/local/lib/libxml2.a

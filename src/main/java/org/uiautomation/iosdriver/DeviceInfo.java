@@ -116,7 +116,6 @@ public class DeviceInfo {
     uniqueDeviceID= rootDict.objectForKey("UniqueDeviceID").toString();
     wifiAddress= rootDict.objectForKey("WiFiAddress").toString();
 
-    System.out.println("big dady's ? "+ "Big Daddy’s iPhone".equals(deviceName) + " -> "+ deviceName);
   }
 
 

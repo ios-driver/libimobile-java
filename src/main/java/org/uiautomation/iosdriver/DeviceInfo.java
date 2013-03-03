@@ -316,7 +316,6 @@ class MyParser {
         for (int j = 1; j < key.getChildNodes().getLength(); j++) {
           keyString += key.getChildNodes().item(j).getNodeValue();
         }
-        System.out.println("working on key :"+keyString);
         dict.put(keyString, parseObject(val));
       }
       return dict;
@@ -352,7 +351,6 @@ class MyParser {
       if (n.getChildNodes().getLength() > 0) {
         return new NSData(n.getChildNodes().item(0).getNodeValue());
       } else {
-        System.out.println("NULL");
         return new NSData((byte[]) null);
       }
 

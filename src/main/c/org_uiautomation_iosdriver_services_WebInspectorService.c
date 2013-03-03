@@ -21,13 +21,13 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_WebInspectorServ
         return;
     }
 
-	printf("Started!\n");
+	printf("WebInspector started!\n");
     return;	
   }
 
 
 JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_WebInspectorService_stop(JNIEnv * env, jobject thiz, jstring uuid){
-  	printf("Stop!\n");
+  	printf("WebInspector stopped!\n");
   	webinspector_client_free(client);
   	idevice_free(device);
     return;	
@@ -48,12 +48,12 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_WebInspectorS
 	plist_to_xml(plist, &xml, &xmllength);
 	plist_free(plist);
 	
-	if (!*xml) {
+	if (xml == NULL) {
 		printf("Error converting plist to xml.\n");
 		return NULL;
 	}
 
-	printf("> %d bytes\n%s===== end of message =====\n\n", xmllength, xml);
+	//printf("> %d bytes\n%s===== end of message =====\n\n", xmllength, xml);
     jstring retval = (*env)->NewStringUTF(env, xml);
     free(xml);
 
@@ -74,7 +74,7 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_WebInspectorServ
 	webinspector_send(client, plist);
 	plist_free(plist);
 
-    printf("Sent message : %s\n", xml);
+    //printf("Sent message : %s\n", xml);
     (*env)->ReleaseStringUTFChars(env, command, xml);
   	return;
 }

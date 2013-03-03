@@ -33,7 +33,7 @@ public class WebInspectorService extends JNIService{
   }
 
   public String receiveMessage() {
-    return receiveMessage(uuid,1000);
+    return receiveMessage(uuid,1);
   }
 
   public void sendMessage(String message) {
@@ -66,7 +66,7 @@ public class WebInspectorService extends JNIService{
     final WebInspectorService inspector = new WebInspectorService("uuid");
     inspector.start();
     final Monitor m = new Monitor();
-    new Thread(new Runnable() {
+    /*new Thread(new Runnable() {
       @Override
       public void run() {
         m.run = true;
@@ -81,8 +81,9 @@ public class WebInspectorService extends JNIService{
           }
         }
       }
-    }).start();
+    }).start();*/
     //Thread.sleep(2000);
+
 
     inspector.sendMessage("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "\n" +
                           "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
@@ -99,6 +100,11 @@ public class WebInspectorService extends JNIService{
                           " </dict>" + "\n" +
                           "</plist>" + "\n");
 
+
+    while("".equals("")){
+      System.err.println("got "+inspector.receiveMessage());
+
+    }
     m.run = false;
     while (m.clean == false) {
       //System.out.println("waiting");

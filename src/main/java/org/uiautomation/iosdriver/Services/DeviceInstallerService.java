@@ -3,8 +3,9 @@ package org.uiautomation.iosdriver.services;
 import com.dd.plist.NSArray;
 import com.dd.plist.NSObject;
 import com.dd.plist.XMLPropertyListParser;
+
 import org.uiautomation.iosdriver.*;
-import org.uiautomation.iosdriver.services.jnitools.JNIService;
+import org.uiautomation.iosdriver.services.jnitools.*;
 
 import java.lang.Exception;
 import java.util.ArrayList;
@@ -70,7 +71,7 @@ public class DeviceInstallerService extends JNIService {
       service.archive(info.getApplicationId(),1,0,"/Users/freynaud/build/archived");
     }
     service.install("/Users/freynaud/build/archived/com.yourcompany.UICatalog.ipa");
-    //service.archive("com.yourcompany.UICatalog",0,0,"/Users/freynaud/build/archived");
+
 
 
 

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 
@@ -24,10 +25,14 @@ public class ApplicationInfo {
     properties = cast(app);
   }
 
-  public Object getProperty(String key){
+  public Object getProperty(String key) {
     return properties.get(key);
   }
 
+  public Set<String> keySet() {
+    return properties.keySet();
+
+  }
 
   private <T> T cast(NSObject value) {
     if (value instanceof NSString) {
@@ -62,11 +67,12 @@ public class ApplicationInfo {
     return null;
   }
 
-  public String getApplicationId(){
-    return (String)properties.get("CFBundleIdentifier");
+  public String getApplicationId() {
+    return (String) properties.get("CFBundleIdentifier");
   }
+
   @Override
   public String toString() {
-    return getApplicationId() +":\n"+properties.toString();
+    return getApplicationId() + ":\n" + properties.toString();
   }
 }

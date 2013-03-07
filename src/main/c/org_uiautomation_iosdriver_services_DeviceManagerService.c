@@ -19,7 +19,6 @@ void throwException(JNIEnv *env,char * msg){
 JNIEXPORT jobject JNICALL Java_org_uiautomation_iosdriver_services_DeviceManagerService_getDeviceListNative  (JNIEnv *env, jobject thiz) {
     int i = 0;
     char **dev_list = NULL;
-    logJava("Java_org_uiautomation_iosdriver_services_DeviceManagerService_getDeviceListNative");
     if (idevice_get_device_list(&dev_list, &i) < 0) {
         throwException(env,"ERROR: Unable to retrieve device list!");
     }

@@ -2,8 +2,16 @@
 
 static JavaVM *jvm;
 
-void logJava(const char *msg){
-  printf("logJava : %s",msg);
+void logJava(const char *format, ...){
+  va_list args;
+  char *msg = NULL;
+
+  va_start(args, format);
+  (void)vasprintf(&msg, format, args);
+  va_end(args);
+
+
+
   JNIEnv *env;
   if (jvm ==NULL){
      printf("Initialize by calling LogService.disabledebug() first..\n");
@@ -26,6 +34,7 @@ void logJava(const char *msg){
   }
   jstring s = (*env)->NewStringUTF(env, msg);
   (*env)->CallStaticVoidMethod(env,clazz, mLog,s);
+  free(msg);
 }
 
 

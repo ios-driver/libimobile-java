@@ -14,4 +14,16 @@ public class LoggerService extends JNIService {
   public static void disableDebug() {
     setLogLevel(0);
   }
+
+
+  public static void log(String s){
+    System.out.println("JAVA:"+s);
+
+  }
+
+
+  public static void main(String[] args){
+    setLogLevel(1);
+  }
+
 }

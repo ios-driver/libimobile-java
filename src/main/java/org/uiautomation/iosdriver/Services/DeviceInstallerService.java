@@ -70,7 +70,7 @@ public class DeviceInstallerService extends JNIService {
       System.out.println("archive : "+ info);
       service.archive(info.getApplicationId(),1,0,"/Users/freynaud/build/archived");
     }
-    service.install("/Users/freynaud/build/archived/com.yourcompany.UICatalog.ipa");
+    //service.install("/Users/freynaud/build/archived/com.yourcompany.UICatalog.ipa");
 
 
 

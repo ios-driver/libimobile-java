@@ -51,14 +51,14 @@ gcc -dynamiclib target/a.o target/b.o target/c.o target/d.o \
   -o src/main/resources/generated/libiosdriver.jnilib
 
 
-rm -rf ~/.m2/repository/org/uiautomation/ios-driver-jni
-mvn package
-mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file -Dfile=target/ios-driver-jni-${VERSION}.jar \
-    -DgroupId=org.uiautomation \
-    -DartifactId=ios-driver-jni \
-    -Dversion=${VERSION} \
-    -Dpackaging=jar  \
-    -DlocalRepositoryPath=${IOS_DRIVER}server/libs  \
+#rm -rf ~/.m2/repository/org/uiautomation/ios-driver-jni
+#mvn package
+#mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file -Dfile=target/ios-driver-jni-${VERSION}.jar \
+#    -DgroupId=org.uiautomation \
+#    -DartifactId=ios-driver-jni \
+#    -Dversion=${VERSION} \
+#    -Dpackaging=jar  \
+#    -DlocalRepositoryPath=${IOS_DRIVER}server/libs  \
 
 
 

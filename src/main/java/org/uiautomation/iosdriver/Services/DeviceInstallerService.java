@@ -62,13 +62,14 @@ public class DeviceInstallerService extends JNIService {
 
 
   public static void main(String[] args) throws java.lang.Exception {
+
     DeviceInstallerService service = new DeviceInstallerService("d1ce6333af579e27d166349dc8a1989503ba5b4f");
     List<ApplicationInfo> apps = service.listUserApps();
 
 
     for (ApplicationInfo info : apps){
       System.out.println("archive : "+ info);
-      service.archive(info.getApplicationId(),1,0,"/Users/freynaud/build/archived");
+      service.archive(info.getApplicationId(),0,0,"/Users/freynaud/build/archived");
     }
     //service.install("/Users/freynaud/build/archived/com.yourcompany.UICatalog.ipa");
 

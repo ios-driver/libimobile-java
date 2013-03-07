@@ -120,6 +120,7 @@ public class DeviceManagerService extends JNIService {
 
 
   public static void main(String[] args) throws InterruptedException {
+    LoggerService.disableDebug();
     DeviceDetector detector = new DeviceDetector() {
       @Override
       public void onDeviceAdded(DeviceInfo deviceInfo) {
@@ -135,7 +136,7 @@ public class DeviceManagerService extends JNIService {
     };
     DeviceManagerService manager = DeviceManagerService.create(detector);
     manager.startDetection();
-    Thread.sleep(3600000);
+    Thread.sleep(1000);
     manager.stopDetection();
 
     //DeviceManagerService manager2 = DeviceManagerService.create(detector);

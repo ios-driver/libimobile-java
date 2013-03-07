@@ -107,8 +107,10 @@ static int zip_f_get_contents(struct zip *zf, const char *filename, int locate_f
 	return 0;
 }
 
-static void status_cb(const char *operation, plist_t status, void *unused){
+
+void status_cb(const char *operation, plist_t status, void *unused){
 	if (status && operation) {
+	    char javaLog[256];
 		plist_t npercent = plist_dict_get_item(status, "PercentComplete");
 		plist_t nstatus = plist_dict_get_item(status, "Status");
 		plist_t nerror = plist_dict_get_item(status, "Error");
@@ -131,15 +133,22 @@ static void status_cb(const char *operation, plist_t status, void *unused){
 			}
 
 			if (!npercent) {
-				printf("%s - %s\n", operation, status_msg);
+				//printf("%s - %s\n", operation, status_msg);
+				sprintf(javaLog,"%s - %s", operation, status_msg);
+                logJava(javaLog);
+
 			} else {
-				printf("%s - %s (%d%%)\r", operation, status_msg, percent);
+				//printf("%s - %s (%d%%)\r", operation, status_msg, percent);
+				sprintf(javaLog, "%s - %s (%d%%)\r", operation, status_msg, percent);
+				logJava(javaLog);
 			}
 		} else {
 			char *err_msg = NULL;
 			plist_get_string_val(nerror, &err_msg);
-			printf("%s - Error occured: %s\n", operation, err_msg);
-			err_occured = 1;
+			//printf("%s - Error occured: %s\n", operation, err_msg);
+			sprintf(javaLog,"%s - Error occured: %s\n", operation, err_msg);
+            logJava(javaLog);
+            err_occured = 1;
 			char msg[256];
             strcpy(msg,operation);
             strcat(msg," failed : ");

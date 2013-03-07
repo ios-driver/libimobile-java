@@ -2,6 +2,7 @@ package org.uiautomation.iosdriver.services.jnitools;
 
 import org.apache.commons.io.IOUtils;
 import org.uiautomation.iosdriver.IOSDriverServiceException;
+import org.uiautomation.iosdriver.services.LoggerService;
 
 import java.io.File;
 import java.io.FileOutputStream;

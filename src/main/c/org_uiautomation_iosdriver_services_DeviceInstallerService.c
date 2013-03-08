@@ -298,7 +298,7 @@ static void parse_opts(int argc, char **argv)
 }
 
 
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_installNative(JNIEnv * env, jobject instance, jobjectArray stringArray){
+/*JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_installNative(JNIEnv * env, jobject instance, jobjectArray stringArray){
 
    int argc = (*env)->GetArrayLength(env, stringArray);
    int i;
@@ -308,11 +308,28 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerS
            const char *rawString = (*env)->GetStringUTFChars(env, string, 0);
            argv[i] = (char*)rawString;
     }
-    originalMainFromIDeviceInstaller(argc, argv);
 
-}
+    char* xml_result;
 
-int originalMainFromIDeviceInstaller(int argc,char**argv){
+    originalMainFromIDeviceInstaller(env,xml_result,argc, argv);
+    printf("RESULT : %s",xml_result);
+    jstring retval = (*env)->NewStringUTF(env, xml_result);
+    return retval;
+
+}*/
+
+JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_installNative(JNIEnv * env, jobject instance, jobjectArray stringArray){
+
+   int argc = (*env)->GetArrayLength(env, stringArray);
+   int i;
+   char **argv = (char **)malloc(argc*sizeof(char *));
+   for (i=0; i<argc; i++) {
+           jstring string = (jstring) (*env)->GetObjectArrayElement(env, stringArray, i);
+           const char *rawString = (*env)->GetStringUTFChars(env, string, 0);
+           argv[i] = (char*)rawString;
+    }
+
+    char* xml_result;
     idevice_t phone = NULL;
     lockdownd_client_t client = NULL;
     instproxy_client_t ipc = NULL;
@@ -327,8 +344,8 @@ int originalMainFromIDeviceInstaller(int argc,char**argv){
     argv += optind;
 
     if (IDEVICE_E_SUCCESS != idevice_new(&phone, uuid)) {
-        fprintf(stderr, "No iPhone found, is it plugged in?\n");
-        return -1;
+        throwException(env, "No iPhone found, is it plugged in?\n");
+        return;
     }
 
     if (LOCKDOWN_E_SUCCESS != lockdownd_client_new_with_handshake(phone, &client, "ideviceinstaller")) {
@@ -426,7 +443,9 @@ run_again:
 
             plist_to_xml(apps, &xml, &len);
             if (xml) {
-                puts(xml);
+                //puts(xml);
+                xml_result=(char*)malloc(strlen(xml)*sizeof(char));
+                strcpy(xml_result,xml);
                 free(xml);
             }
             plist_free(apps);
@@ -713,8 +732,11 @@ run_again:
 
             plist_to_xml(lres, &xml, &len);
             if (xml) {
-                puts(xml);
-                free(xml);
+                 //puts(xml);
+                 xml_result=(char*)malloc(strlen(xml)*sizeof(char));
+                 strcpy(xml_result,xml);
+                 free(xml);
+
             }
             plist_free(dict);
             goto leave_cleanup;
@@ -1007,6 +1029,9 @@ run_again:
         free(options);
     }
 
-    return res;
+    //printf("returning with xml:\n\n  %s",xml_result);
+    jstring retval = (*env)->NewStringUTF(env, xml_result);
+    return retval;
+    //return res;
 
 }

@@ -12,7 +12,7 @@ extern "C" {
  * Method:    installNative
  * Signature: ([Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_installNative
+JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_installNative
   (JNIEnv *, jobject, jobjectArray);
 
 #ifdef __cplusplus

@@ -52,12 +52,11 @@ int err_occured = 0;
 int notified = 0;
 
 
-static void notifier(const char *notification){
-	/* printf("notification received: %s\n", notification);*/
+static void notifier(const char *notification, void *unused){
 	notified = 1;
 }
 
-static void status_cb(const char *operation, plist_t status){
+static void status_cb(const char *operation, plist_t status,void *unused){
 	if (status && operation) {
 		plist_t npercent = plist_dict_get_item(status, "PercentComplete");
 		plist_t nstatus = plist_dict_get_item(status, "Status");
@@ -324,7 +323,7 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_LibImobileDevice
 
 
 int originalFromIDeviceInstaller(int argc,char**argv){
-idevice_t phone = NULL;
+    idevice_t phone = NULL;
     lockdownd_client_t client = NULL;
     instproxy_client_t ipc = NULL;
     np_client_t np = NULL;
@@ -361,12 +360,12 @@ idevice_t phone = NULL;
     }
 
 
-np_set_notify_callback(np, notifier, NULL);
+    np_set_notify_callback(np, notifier, NULL);
 
 
-const char *noties[3] = { NP_APP_INSTALLED, NP_APP_UNINSTALLED, NULL };
+    const char *noties[3] = { NP_APP_INSTALLED, NP_APP_UNINSTALLED, NULL };
 
-np_observe_notifications(np, noties);
+    np_observe_notifications(np, noties);
 
 run_again:
     port = 0;

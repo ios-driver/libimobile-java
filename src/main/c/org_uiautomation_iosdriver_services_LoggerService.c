@@ -1,4 +1,9 @@
 #include <jni.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
 
 static JavaVM *jvm;
 
@@ -10,7 +15,14 @@ void logJava(const char *format, ...){
   (void)vasprintf(&msg, format, args);
   va_end(args);
 
-
+  // should come from the context and be set in the service contructor.
+  char * logId="[uniqueLogTODO]";
+  char * new_str ;
+  if((new_str = malloc(strlen(msg)+strlen(logId)+1)) != NULL){
+      new_str[0] = '\0';   // ensures the memory is an empty string
+      strcat(new_str,logId);
+      strcat(new_str,msg);
+  }
 
   JNIEnv *env;
   if (jvm ==NULL){
@@ -32,7 +44,7 @@ void logJava(const char *format, ...){
         printf("mLog NULL");
         return;
   }
-  jstring s = (*env)->NewStringUTF(env, msg);
+  jstring s = (*env)->NewStringUTF(env, new_str);
   (*env)->CallStaticVoidMethod(env,clazz, mLog,s);
   free(msg);
 }

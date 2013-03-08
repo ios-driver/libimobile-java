@@ -16,7 +16,7 @@ rm -f src/main/resources/generated/libiosdriver.jnilib
 
 gcc  -I${JAVA_H} -I${MAC_PORT} -I${LIB_IMOBILE} -c src/main/c/org_uiautomation_iosdriver_services_WebInspectorService.c  -o target/a.o
 gcc  -I${JAVA_H} -I${MAC_PORT} -I${LIB_IMOBILE}  -c src/main/c/org_uiautomation_iosdriver_services_DeviceManagerService.c  -o target/b.o
-gcc  -I${JAVA_H} -I${MAC_PORT} -I${LIB_IMOBILE} -I${LIB_ZIP}  -c src/main/c/org_uiautomation_iosdriver_services_LibImobileDeviceInstallerService.c -o target/c.o
+gcc  -I${JAVA_H} -I${MAC_PORT} -I${LIB_IMOBILE} -I${LIB_ZIP}  -c src/main/c/org_uiautomation_iosdriver_services_DeviceInstallerService.c -o target/c.o
 gcc  -I${JAVA_H} -I${MAC_PORT} -I${LIB_IMOBILE} -c src/main/c/org_uiautomation_iosdriver_services_LoggerService.c  -o target/d.o
 
 

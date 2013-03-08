@@ -7,13 +7,9 @@
 
 static JavaVM *jvm;
 
-void logJava(const char *format, ...){
-  va_list args;
-  char *msg = NULL;
 
-  va_start(args, format);
-  (void)vasprintf(&msg, format, args);
-  va_end(args);
+
+void logJava(int level,const char *msg){
 
   // should come from the context and be set in the service contructor.
   char * logId="[uniqueLogTODO]";
@@ -39,16 +35,56 @@ void logJava(const char *format, ...){
           printf("%s can't be loaded in C. Class got renamed ?",n);
           return;
   }
-  jmethodID mLog = (*env)->GetStaticMethodID(env,clazz, "log","(Ljava/lang/String;)V");
+  jmethodID mLog = (*env)->GetStaticMethodID(env,clazz, "log","(ILjava/lang/String;)V");
   if (mLog==NULL){
         printf("mLog NULL");
         return;
   }
   jstring s = (*env)->NewStringUTF(env, new_str);
-  (*env)->CallStaticVoidMethod(env,clazz, mLog,s);
-  free(msg);
+  (*env)->CallStaticVoidMethod(env,clazz, mLog,level,s);
+  free((char*)msg);
 }
+// 0 fine
+// 1 info
+// 2 warning
+// 3 error
 
+void logFine(const char *format, ...){
+  va_list args;
+  char *msg = NULL;
+
+  va_start(args, format);
+  (void)vasprintf(&msg, format, args);
+  logJava(0,msg);
+  va_end(args);
+}
+void logInfo(const char *format, ...){
+  va_list args;
+  char *msg = NULL;
+
+  va_start(args, format);
+  (void)vasprintf(&msg, format, args);
+  logJava(1,msg);
+  va_end(args);
+}
+void logWarning(const char *format, ...){
+  va_list args;
+  char *msg = NULL;
+
+  va_start(args, format);
+  (void)vasprintf(&msg, format, args);
+  logJava(2,msg);
+  va_end(args);
+}
+void logError(const char *format, ...){
+  va_list args;
+  char *msg = NULL;
+
+  va_start(args, format);
+  (void)vasprintf(&msg, format, args);
+  logJava(3,msg);
+  va_end(args);
+}
 
 JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_LoggerService_setLogLevel(JNIEnv * env, jclass clazz, jint level){
  idevice_set_debug_level((int)level);
@@ -56,5 +92,6 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_LoggerService_se
      if(status != 0) {
          printf("failed storing the JVM instance.");
      }
+ logInfo("Yop");
 }
 

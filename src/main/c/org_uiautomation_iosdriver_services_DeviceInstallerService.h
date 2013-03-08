@@ -9,43 +9,11 @@ extern "C" {
 #endif
 /*
  * Class:     org_uiautomation_iosdriver_services_DeviceInstallerService
- * Method:    listApps
- * Signature: (Ljava/lang/String;I)Ljava/lang/String;
+ * Method:    installNative
+ * Signature: ([Ljava/lang/String;)V
  */
-JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_listApps
-  (JNIEnv *, jobject, jint);
-
-/*
- * Class:     org_uiautomation_iosdriver_services_DeviceInstallerService
- * Method:    uninstall
- * Signature: (Ljava/lang/String;Ljava/lang/String;)V
- */
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_uninstall
-  (JNIEnv *, jobject, jstring);
-
-/*
- * Class:     org_uiautomation_iosdriver_services_DeviceInstallerService
- * Method:    install
- * Signature: (Ljava/lang/String;Ljava/lang/String;)V
- */
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_install
-  (JNIEnv *, jobject, jstring);
-
-/*
- * Class:     org_uiautomation_iosdriver_services_DeviceInstallerService
- * Method:    upgrade
- * Signature: (Ljava/lang/String;Ljava/lang/String;)V
- */
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_upgrade
-  (JNIEnv *, jobject, jstring);
-
-/*
- * Class:     org_uiautomation_iosdriver_services_DeviceInstallerService
- * Method:    archive
- * Signature: (Ljava/lang/String;Ljava/lang/String;ZZLjava/lang/String;)V
- */
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_archive
-  (JNIEnv *, jobject, jstring, jint, jint, jstring);
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_installNative
+  (JNIEnv *, jobject, jobjectArray);
 
 #ifdef __cplusplus
 }

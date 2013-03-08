@@ -23,7 +23,7 @@ public class LibImobileDeviceInstallerService extends JNIService {
 
 
   public static void main(String[] args) {
-    args = new String[]{"test","test2"};
+    args = new String[]{"bla","-a", "com.yourcompany.UICatalog"};
     LibImobileDeviceInstallerService service = new LibImobileDeviceInstallerService();
     service.installNative(args);
   }

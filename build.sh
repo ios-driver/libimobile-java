@@ -16,7 +16,7 @@ rm -f src/main/resources/generated/libiosdriver.jnilib
 
 gcc  -I${JAVA_H} -I${MAC_PORT} -I${LIB_IMOBILE} -c src/main/c/org_uiautomation_iosdriver_services_WebInspectorService.c  -o target/a.o
 gcc  -I${JAVA_H} -I${MAC_PORT} -I${LIB_IMOBILE}  -c src/main/c/org_uiautomation_iosdriver_services_DeviceManagerService.c  -o target/b.o
-gcc  -I${JAVA_H} -I${MAC_PORT} -I${LIB_IMOBILE} -I${LIB_ZIP}  -c src/main/c/org_uiautomation_iosdriver_services_DeviceInstallerService.c -o target/c.o
+#gcc  -I${JAVA_H} -I${MAC_PORT} -I${LIB_IMOBILE} -I${LIB_ZIP}  -c src/main/c/org_uiautomation_iosdriver_services_DeviceInstallerService.c -o target/c.o
 gcc  -I${JAVA_H} -I${MAC_PORT} -I${LIB_IMOBILE} -I${LIB_ZIP}  -c src/main/c/org_uiautomation_iosdriver_services_LibImobileDeviceInstallerService.c -o target/e.o
 
 gcc  -I${JAVA_H} -I${MAC_PORT} -I${LIB_IMOBILE} -c src/main/c/org_uiautomation_iosdriver_services_LoggerService.c  -o target/d.o
@@ -25,7 +25,7 @@ gcc  -I${JAVA_H} -I${MAC_PORT} -I${LIB_IMOBILE} -c src/main/c/org_uiautomation_i
 #gcc   -L/opt/local/lib  -l plist -l zip -l imobiledevice -dynamiclib   -o src/main/resources/generated/libiosdriver.jnilib target/a.o target/b.o target/c.o
 
 
-gcc -dynamiclib target/a.o target/b.o target/c.o target/d.o target/e.o \
+gcc -dynamiclib target/a.o target/b.o  target/d.o target/e.o \
   ${LIB_USBMUXD}libusbmuxd/CMakeFiles/libusbmuxd.dir/libusbmuxd.c.o \
   ${LIB_USBMUXD}libusbmuxd/CMakeFiles/libusbmuxd.dir/sock_stuff.c.o  \
   ${LIB_USBMUXD}libusbmuxd/CMakeFiles/libusbmuxd.dir/__/common/utils.c.o \

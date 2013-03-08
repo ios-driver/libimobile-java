@@ -4,10 +4,10 @@ import com.dd.plist.NSArray;
 import com.dd.plist.NSObject;
 import com.dd.plist.XMLPropertyListParser;
 
-import org.uiautomation.iosdriver.*;
-import org.uiautomation.iosdriver.services.jnitools.*;
+import org.uiautomation.iosdriver.ApplicationInfo;
+import org.uiautomation.iosdriver.services.jnitools.JNIService;
 
-import java.lang.Exception;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -26,8 +26,6 @@ public class DeviceInstallerService extends JNIService {
   private final String uuid;
 
 
-
-
   public DeviceInstallerService(String uuid) {
     this.uuid = uuid;
   }
@@ -40,42 +38,42 @@ public class DeviceInstallerService extends JNIService {
 
   private native void upgrade(String archive);
 
-  private native void archive(String appId,
+  public native void archive(String appId,
                               int uninstall,
                               int appOnly,
                               String destinationFolder);
 
   public List<ApplicationInfo> listUserApps() {
-    String rawXML = listApps( LIST_USER_APPS);
+    String rawXML = listApps(LIST_USER_APPS);
     return extractApplications(rawXML);
   }
 
   public List<ApplicationInfo> listSystemApps() {
-    String rawXML = listApps( LIST_SYSTEM_APPS);
+    String rawXML = listApps(LIST_SYSTEM_APPS);
     return extractApplications(rawXML);
   }
 
   public List<ApplicationInfo> listAllApps() {
-    String rawXML = listApps( LIST_ALL_APPS);
+    String rawXML = listApps(LIST_ALL_APPS);
     return extractApplications(rawXML);
   }
 
 
+
+
   public static void main(String[] args) throws java.lang.Exception {
 
-    DeviceInstallerService service = new DeviceInstallerService("d1ce6333af579e27d166349dc8a1989503ba5b4f");
+    DeviceInstallerService
+        service =
+        new DeviceInstallerService("d1ce6333af579e27d166349dc8a1989503ba5b4f");
     List<ApplicationInfo> apps = service.listUserApps();
 
-
-    for (ApplicationInfo info : apps){
-      System.out.println("archive : "+ info);
-      service.archive(info.getApplicationId(),0,0,"/Users/freynaud/build/archived");
+    for (ApplicationInfo info : apps) {
+      System.out.println("archive : " + info);
+      service.archive(info.getApplicationId(), 0, 0, "/Users/freynaud/build/archived");
+      service.archive(info.getApplicationId(), 0, 0, "/Users/freynaud/build/archived2");
     }
     //service.install("/Users/freynaud/build/archived/com.yourcompany.UICatalog.ipa");
-
-
-
-
 
   }
 

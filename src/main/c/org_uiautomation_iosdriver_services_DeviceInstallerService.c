@@ -51,12 +51,27 @@ int op_completed = 0;
 int err_occured = 0;
 int notified = 0;
 
+static JavaVM *jvm;
+
 
 static void notifier(const char *notification, void *unused){
 	notified = 1;
 }
 
 static void status_cb(const char *operation, plist_t status,void *unused){
+
+    JNIEnv *env;
+    if (jvm ==NULL){
+        printf("Initialize first..\n");
+    }
+    (*jvm)->AttachCurrentThread(jvm, (void **)&env, NULL);
+
+    if (env==NULL){
+        printf("Need to specific the JNI env for logging.\n");
+    }else {
+        printf("OK\n");
+    }
+
 	if (status && operation) {
 		plist_t npercent = plist_dict_get_item(status, "PercentComplete");
 		plist_t nstatus = plist_dict_get_item(status, "Status");
@@ -220,19 +235,40 @@ static void parse_opts(int argc, char **argv)
 	};
 	// freynaud : this function will be called multiple times. Needs to reset the index for parsing.
 	optind=1;
+	list_apps_mode = 0;
+    install_mode = 0;
+    uninstall_mode = 0;
+    upgrade_mode = 0;
+    list_archives_mode = 0;
+    archive_mode = 0;
+    restore_mode = 0;
+    remove_archive_mode = 0;
+
+    last_status = NULL;
+    wait_for_op_complete = 0;
+    notification_expected = 0;
+    op_completed = 0;
+    err_occured = 0;
+    notified = 0;
+
+
+
 	int c;
 
 	while (1) {
 		c = getopt_long(argc, argv, "hU:li:u:g:La:r:R:o:d", longopts,
 						(int *) 0);
+		printf("parsing ...");
 		if (c == -1) {
 			break;
 		}
         switch (c) {
 		case 'h':
+		 printf("h\n");
 			print_usage(argc, argv);
 			exit(0);
 		case 'U':
+		    printf("U\n");
 			if (strlen(optarg) != 40) {
 				printf("%s: invalid UUID specified (length != 40)\n",
 					   argv[0]);
@@ -242,6 +278,7 @@ static void parse_opts(int argc, char **argv)
 			uuid = strdup(optarg);
 			break;
 		case 'l':
+		 printf("l\n");
 			list_apps_mode = 1;
 			break;
 		case 'i':
@@ -249,6 +286,7 @@ static void parse_opts(int argc, char **argv)
 			appid = strdup(optarg);
 			break;
 		case 'u':
+		 printf("u\n");
 			uninstall_mode = 1;
 			appid = strdup(optarg);
 			break;
@@ -325,6 +363,14 @@ static void parse_opts(int argc, char **argv)
 
 JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_installNative(JNIEnv * env, jobject instance, jobjectArray stringArray){
 
+   if (jvm == NULL){
+   int status = (*env)->GetJavaVM(env, &jvm);
+        if(status != 0) {
+            logError("failed storing the JVM instance.");
+            return;
+        }
+   }
+
    int argc = (*env)->GetArrayLength(env, stringArray);
    int i;
    char **argv = (char **)malloc(argc*sizeof(char *));
@@ -332,8 +378,10 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstall
            jstring string = (jstring) (*env)->GetObjectArrayElement(env, stringArray, i);
            const char *rawString = (*env)->GetStringUTFChars(env, string, 0);
            argv[i] = (char*)rawString;
+           printf("[%d]=%s\n",i,argv[i]);
     }
-    char* xml_result;
+    // to be able to free.
+    //char* xml_result;
     idevice_t phone = NULL;
     lockdownd_client_t client = NULL;
     instproxy_client_t ipc = NULL;
@@ -341,9 +389,11 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstall
     afc_client_t afc = NULL;
     uint16_t port = 0;
     int res = 0;
+    jstring retval;
 
+    printf("uninstall_mode=%i\n",uninstall_mode);
     parse_opts(argc, argv);
-
+    printf("uninstall_mode=%i\n",uninstall_mode);
     argc -= optind;
     argv += optind;
 
@@ -404,6 +454,7 @@ run_again:
     notification_expected = 0;
 
     if (list_apps_mode) {
+        fprintf(stderr,"list_apps_mode\n");
         int xml_mode = 0;
         plist_t client_opts = instproxy_client_options_new();
         instproxy_client_options_add(client_opts, "ApplicationType", "User", NULL);
@@ -450,8 +501,9 @@ run_again:
             plist_to_xml(apps, &xml, &len);
             if (xml) {
                 //puts(xml);
-                xml_result=(char*)malloc(strlen(xml)*sizeof(char));
-                strcpy(xml_result,xml);
+                //xml_result=(char*)malloc(strlen(xml)*sizeof(char));
+                //strcpy(xml_result,xml);
+                retval = (*env)->NewStringUTF(env, xml);
                 free(xml);
             }
             plist_free(apps);
@@ -499,6 +551,7 @@ run_again:
         }
         plist_free(apps);
     } else if (install_mode || upgrade_mode) {
+        printf("install_mode || upgrade_mode\n");
         plist_t sinf = NULL;
         plist_t meta = NULL;
         char *pkgname = NULL;
@@ -693,10 +746,12 @@ run_again:
         wait_for_op_complete = 1;
         notification_expected = 1;
     } else if (uninstall_mode) {
+        printf("uninstall_mode \n");
         instproxy_uninstall(ipc, appid, NULL, status_cb, NULL);
         wait_for_op_complete = 1;
         notification_expected = 1;
     } else if (list_archives_mode) {
+        printf("list_archives_mode \n");
         int xml_mode = 0;
         plist_t dict = NULL;
         plist_t lres = NULL;
@@ -739,8 +794,9 @@ run_again:
             plist_to_xml(lres, &xml, &len);
             if (xml) {
                  //puts(xml);
-                 xml_result=(char*)malloc(strlen(xml)*sizeof(char));
-                 strcpy(xml_result,xml);
+                 //xml_result=(char*)malloc(strlen(xml)*sizeof(char));
+                 //strcpy(xml_result,xml);
+                 retval = (*env)->NewStringUTF(env, xml);
                  free(xml);
 
             }
@@ -791,6 +847,7 @@ run_again:
         while (node);
         plist_free(dict);
     } else if (archive_mode) {
+        printf("archive_mode\n");
         char *copy_path = NULL;
         int remove_after_copy = 0;
         int skip_uninstall = 1;
@@ -895,10 +952,15 @@ run_again:
                 fprintf(stderr, "Out of memory!?\n");
                 goto leave_cleanup;
             }
+            printf("remote file : %s",remotefile);
 
             uint32_t fsize = 0;
             char **fileinfo = NULL;
             if ((afc_get_file_info(afc, remotefile, &fileinfo) != AFC_E_SUCCESS) || !fileinfo) {
+                printf("afc_get: %d",(afc_get_file_info(afc, remotefile, &fileinfo)));
+                if (!fileinfo){
+                printf("! fileinfo");
+                }
                 fprintf(stderr, "ERROR getting AFC file info for '%s' on device!\n", remotefile);
                 fclose(f);
                 free(remotefile);
@@ -989,10 +1051,12 @@ run_again:
         }
         goto leave_cleanup;
     } else if (restore_mode) {
+        printf("restore_mode\n");
         instproxy_restore(ipc, appid, NULL, status_cb, NULL);
         wait_for_op_complete = 1;
         notification_expected = 1;
     } else if (remove_archive_mode) {
+        printf("remove_archive_mode\n");
         instproxy_remove_archive(ipc, appid, NULL, status_cb, NULL);
         wait_for_op_complete = 1;
     } else {
@@ -1011,7 +1075,8 @@ run_again:
     do_wait_when_needed();
 
   leave_cleanup:
-    if (np) {
+    printf("CLEAN");
+    /*if (np) {
         np_client_free(np);
     }
     if (ipc) {
@@ -1033,10 +1098,11 @@ run_again:
     }
     if (options) {
     //    free(options);
-    }
+    }*/
 
     //printf("returning with xml:\n\n  %s",xml_result);
-    jstring retval = (*env)->NewStringUTF(env, xml_result);
+
+
     return retval;
     //return res;
 

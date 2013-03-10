@@ -218,16 +218,18 @@ static void parse_opts(int argc, char **argv)
 		{"debug", 0, NULL, 'd'},
 		{NULL, 0, NULL, 0}
 	};
+	printf("arguments size : %d.  optind=%d\n",argc, optind);
+	optind=1;
 	int c;
 
 	while (1) {
 		c = getopt_long(argc, argv, "hU:li:u:g:La:r:R:o:d", longopts,
 						(int *) 0);
 		if (c == -1) {
+		    printf("nothing to parse.\n");
 			break;
 		}
-
-		switch (c) {
+        switch (c) {
 		case 'h':
 			print_usage(argc, argv);
 			exit(0);
@@ -239,6 +241,7 @@ static void parse_opts(int argc, char **argv)
 				exit(2);
 			}
 			uuid = strdup(optarg);
+			printf("parsing args found uuid : %s\n",uuid);
 			break;
 		case 'l':
 			list_apps_mode = 1;
@@ -290,11 +293,16 @@ static void parse_opts(int argc, char **argv)
 			exit(2);
 		}
 	}
+	printf("END\n");
+
+
 
 	if (optind <= 1 || (argc - optind > 0)) {
 		print_usage(argc, argv);
 		exit(2);
 	}
+
+
 }
 
 
@@ -327,8 +335,9 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstall
            jstring string = (jstring) (*env)->GetObjectArrayElement(env, stringArray, i);
            const char *rawString = (*env)->GetStringUTFChars(env, string, 0);
            argv[i] = (char*)rawString;
+           printf("argv[%d]=%s\n",i,argv[i]);
     }
-
+    printf("---------\n\n");
     char* xml_result;
     idevice_t phone = NULL;
     lockdownd_client_t client = NULL;
@@ -342,6 +351,8 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstall
 
     argc -= optind;
     argv += optind;
+
+    printf("uuid=%s\n",uuid);
 
     if (IDEVICE_E_SUCCESS != idevice_new(&phone, uuid)) {
         throwException(env, "No iPhone found, is it plugged in?\n");
@@ -1026,7 +1037,7 @@ run_again:
         free(appid);
     }
     if (options) {
-        free(options);
+    //    free(options);
     }
 
     //printf("returning with xml:\n\n  %s",xml_result);

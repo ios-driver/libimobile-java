@@ -110,7 +110,6 @@ public class DeviceInstallerService extends JNIService {
       cmd.add("app_only");
     }
     if (archiveBackup != null) {
-      archiveBackup.delete();
       cmd.add("-o");
       cmd.add("copy=" + archiveBackup.getAbsolutePath());
       /*if (andRemoveAfterBackup) {

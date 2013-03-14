@@ -58,8 +58,9 @@ static void notifier(const char *notification, void *unused){
 	notified = 1;
 }
 
-static void status_cb(const char *operation, plist_t status,void *unused){
+static void status_cb(const char *operation, plist_t status,void * idvoid){
 
+    char const * id = (char const *) idvoid;
     JNIEnv *env;
     if (jvm ==NULL){
         printf("Initialize first..\n");
@@ -93,14 +94,14 @@ static void status_cb(const char *operation, plist_t status,void *unused){
 			}
 
 			if (!npercent) {
-				logInfo("%s - %s", operation, status_msg);
+				logInfo("%s: %s - %s", id, operation, status_msg);
             } else {
-				logInfo( "%s - %s (%d%%)\r", operation, status_msg, percent);
+				logInfo( "%s: %s - %s (%d%%)\r", id, operation, status_msg, percent);
 			}
 		} else {
 			char *err_msg = NULL;
 			plist_get_string_val(nerror, &err_msg);
-			logInfo("%s - Error occured: %s\n", operation, err_msg);
+			logInfo("%s: %s - Error occured: %s\n", id, operation, err_msg);
 			free(err_msg);
 			err_occured = 1;
 		}
@@ -729,10 +730,10 @@ run_again:
         }
         if (install_mode) {
             printf("Installing '%s'\n", pkgname);
-            instproxy_install(ipc, pkgname, client_opts, status_cb, NULL);
+            instproxy_install(ipc, pkgname, client_opts, status_cb, uuid);
         } else {
             printf("Upgrading '%s'\n", pkgname);
-            instproxy_upgrade(ipc, pkgname, client_opts, status_cb, NULL);
+            instproxy_upgrade(ipc, pkgname, client_opts, status_cb, uuid);
         }
         instproxy_client_options_free(client_opts);
         free(pkgname);
@@ -740,7 +741,7 @@ run_again:
         notification_expected = 1;
     } else if (uninstall_mode) {
         //printf("uninstall_mode \n");
-        instproxy_uninstall(ipc, appid, NULL, status_cb, NULL);
+        instproxy_uninstall(ipc, appid, NULL, status_cb, uuid);
         wait_for_op_complete = 1;
         notification_expected = 1;
     } else if (list_archives_mode) {
@@ -905,7 +906,7 @@ run_again:
             }
         }
 
-        instproxy_archive(ipc, appid, client_opts, status_cb, NULL);
+        instproxy_archive(ipc, appid, client_opts, status_cb, uuid);
         instproxy_client_options_free(client_opts);
         wait_for_op_complete = 1;
         if (skip_uninstall) {
@@ -1044,12 +1045,12 @@ run_again:
         goto leave_cleanup;
     } else if (restore_mode) {
         //printf("restore_mode\n");
-        instproxy_restore(ipc, appid, NULL, status_cb, NULL);
+        instproxy_restore(ipc, appid, NULL, status_cb, uuid);
         wait_for_op_complete = 1;
         notification_expected = 1;
     } else if (remove_archive_mode) {
         //printf("remove_archive_mode\n");
-        instproxy_remove_archive(ipc, appid, NULL, status_cb, NULL);
+        instproxy_remove_archive(ipc, appid, NULL, status_cb, uuid);
         wait_for_op_complete = 1;
     } else {
         printf

@@ -136,7 +136,7 @@ public class DeviceInstallerService extends JNIService {
     DeviceInstallerService
         service =
         new DeviceInstallerService("d1ce6333af579e27d166349dc8a1989503ba5b4f");
-    //service.installNative(args);
+    service.installNative(args);
     //
 
     //service.install(new File("/Users/freynaud/build/work/uicatalog.ipa"));

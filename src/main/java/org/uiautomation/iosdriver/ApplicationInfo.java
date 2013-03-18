@@ -34,6 +34,10 @@ public class ApplicationInfo {
 
   }
 
+  public Map<String, Object> getProperties() {
+    return properties;
+  }
+
   private <T> T cast(NSObject value) {
     if (value instanceof NSString) {
       return (T) value.toString();

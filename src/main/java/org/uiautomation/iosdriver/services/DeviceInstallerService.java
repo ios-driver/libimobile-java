@@ -136,26 +136,33 @@ public class DeviceInstallerService extends JNIService {
     DeviceInstallerService
         service =
         new DeviceInstallerService("d1ce6333af579e27d166349dc8a1989503ba5b4f");
-    service.installNative(args);
+    //service.installNative(args);
     //
 
-    //service.install(new File("/Users/freynaud/build/work/uicatalog.ipa"));
+    service.install(new File("/Users/freynaud/build/work/uicatalog.ipa"));
     //service.removeArchive(app);
-    //service.archive(app,true,false,new File("/Users/freynaud/build/tmp"),true);
+    service.archive(app, true, false, new File("/Users/freynaud/build/tmp"), true);
     //service.uninstall("com.yourcompany.UICatalog");
-    //System.out.println(service.getSystemApplications());
-    //System.out.println(service.getAllApplications());
+    System.out.println(service.getSystemApplications());
+    System.out.println(service.getAllApplications());
     //service.removeArchive(app);
-    //service.archive("com.yourcompany.UICatalog", true, false, new File("/Users/freynaud/build/tmp"),true);
+    service.archive("com.yourcompany.UICatalog", true, false, new File("/Users/freynaud/build/tmp"),
+                    true);
+    service.archive("com.yourcompany.UICatalog", true, false, new File("/Users/freynaud/build/tmp"),
+                    true);
+    service.archive("com.yourcompany.UICatalog", true, false, new File("/Users/freynaud/build/tmp"),
+                    true);
+    service.archive("com.yourcompany.UICatalog", true, false, new File("/Users/freynaud/build/tmp"),
+                    true);
 
     //System.out.println("INSTALL\n");
-    //service.install(new File("/Users/freynaud/build/work/uicatalog.ipa"));
+    service.install(new File("/Users/freynaud/build/work/uicatalog.ipa"));
     System.out.println("LIST\n");
     System.out.println(service.getUserApplications());
     //System.out.println("UNINSTALL\n");
     //
     // service.uninstall(app);
-    //service.install(new File("/Users/freynaud/build/work/uicatalog.ipa"));
+    service.install(new File("/Users/freynaud/build/work/uicatalog.ipa"));
 
     service.removeArchive(app);
     service

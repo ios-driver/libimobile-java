@@ -1069,24 +1069,28 @@ run_again:
 
   leave_cleanup:
     if (np) {
-        //np_client_free(np);
+        np_client_free(np);
     }
     if (ipc) {
-        //instproxy_client_free(ipc);
+        instproxy_client_free(ipc);
     }
     if (afc) {
-       // afc_client_free(afc);
+        afc_client_free(afc);
+        afc = NULL;
     }
     if (client) {
-        //lockdownd_client_free(client);
+        lockdownd_client_free(client);
+        client = NULL;
     }
     idevice_free(phone);
 
     if (uuid) {
-        //free(uuid);
+        free(uuid);
+        uuid = NULL;
     }
     if (appid) {
-        //free(appid);
+        free(appid);
+        appid = NULL;
     }
     if (options) {
     //    free(options);

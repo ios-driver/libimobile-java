@@ -17,7 +17,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>13.0.1</version>
+            <version>14.0</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -40,7 +40,7 @@
     <build>
         <plugins>
 
-           <plugin>
+            <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.3</version>
                 <executions>
@@ -57,7 +57,8 @@
 
                     <archive>
                         <manifest>
-                            <mainClass>org.uiautomation.iosdriver.services.DeviceManagerService</mainClass>
+                            <mainClass>org.uiautomation.iosdriver.services.DeviceManagerService
+                            </mainClass>
                         </manifest>
 
                     </archive>

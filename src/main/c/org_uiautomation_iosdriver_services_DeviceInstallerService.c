@@ -94,14 +94,14 @@ static void status_cb(const char *operation, plist_t status,void * idvoid){
 			}
 
 			if (!npercent) {
-				logInfo("%s: %s - %s", id, operation, status_msg);
+				logInfo("%s;%s;%s", id, operation, status_msg);
             } else {
-				logInfo( "%s: %s - %s (%d%%)\r", id, operation, status_msg, percent);
+				logInfo( "%s;%s;%s;%d%%\r", id, operation, status_msg, percent);
 			}
 		} else {
 			char *err_msg = NULL;
 			plist_get_string_val(nerror, &err_msg);
-			logInfo("%s: %s - Error occured: %s\n", id, operation, err_msg);
+			logInfo("%s;%s;Error occured: %s", id, operation, err_msg);
 			free(err_msg);
 			err_occured = 1;
 		}

@@ -40,7 +40,7 @@ void logJava(int level,const char *msg){
         printf("mLog NULL");
         return;
   }
-  jstring s = (*env)->NewStringUTF(env, new_str);
+  jstring s = (*env)->NewStringUTF(env, msg);
   (*env)->CallStaticVoidMethod(env,clazz, mLog,level,s);
   free((char*)msg);
 }

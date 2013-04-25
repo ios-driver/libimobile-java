@@ -11,8 +11,14 @@
 
 static idevice_t device = NULL;
 
-void throwException(JNIEnv *env,char * msg){
+void throwException(JNIEnv *env, const char *format, ...){
+    va_list args;
+    char *msg = NULL;
+
+    va_start(args, format);
+    (void)vasprintf(&msg, format, args);
     (*env)->ThrowNew(env, (*env)->FindClass(env, "org/uiautomation/iosdriver/Exception"), msg);
+    va_end(args);
 }
 
 

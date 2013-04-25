@@ -21,12 +21,21 @@
 #include <libimobiledevice/lockdown.h>
 #include <libimobiledevice/installation_proxy.h>
 #include <libimobiledevice/notification_proxy.h>
+#include <libimobiledevice/house_arrest.h>
 #include <libimobiledevice/afc.h>
 
 #include <plist/plist.h>
 
 #include <zip.h>
 
+#include <sys/stat.h>
+
+#if !defined(S_IFLNK)
+#define S_IFLNK 0120000
+#endif
+#if !defined(S_IFSOCK)
+#define S_IFSOCK 0140000
+#endif
 
 const char PKG_PATH[] = "PublicStaging";
 const char APPARCH_PATH[] = "ApplicationArchives";
@@ -334,26 +343,211 @@ static void parse_opts(int argc, char **argv)
 
 }
 
+static void afc_dictionary_free(char **dictionary)
+{
+    int i = 0;
 
-/*JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_installNative(JNIEnv * env, jobject instance, jobjectArray stringArray){
+    if (!dictionary)
+        return;
 
-   int argc = (*env)->GetArrayLength(env, stringArray);
-   int i;
-   char **argv = (char **)malloc(argc*sizeof(char *));
-   for (i=0; i<argc; i++) {
-           jstring string = (jstring) (*env)->GetObjectArrayElement(env, stringArray, i);
-           const char *rawString = (*env)->GetStringUTFChars(env, string, 0);
-           argv[i] = (char*)rawString;
+    for (i = 0; dictionary[i]; i++) {
+        free(dictionary[i]);
+    }
+    free(dictionary);
+}
+
+static void afc_remove_path_recursive(afc_client_t afc, char* path)
+{
+    if (!afc || path == NULL)
+        return;
+
+    char** list = NULL;
+    if (afc_read_directory(afc, path, &list) == AFC_E_SUCCESS) {
+        int k;
+        for (k = 0; list[k]; k++) {
+            if (!strcmp(list[k], ".") || !strcmp(list[k], "..")) {
+                continue;
+            }
+
+            char **fileinfo = NULL;
+            struct stat stbuf;
+            uint64_t fblocks = 0;
+
+            // assemble absolute filename
+            char *filename = (char*)malloc(strlen(path) + strlen(list[k]) + 1);
+            strcpy(filename, path);
+            strcat(filename, list[k]);
+
+            // get file information
+            afc_get_file_info(afc, filename, &fileinfo);
+            if (!fileinfo) {
+                continue;
+            }
+
+            // parse file information
+            int i;
+            for (i = 0; fileinfo[i]; i+=2) {
+                if (!strcmp(fileinfo[i], "st_ifmt")) {
+                    if (!strcmp(fileinfo[i+1], "S_IFREG")) {
+                        stbuf.st_mode = S_IFREG;
+                    } else if (!strcmp(fileinfo[i+1], "S_IFDIR")) {
+                        stbuf.st_mode = S_IFDIR;
+                    } else if (!strcmp(fileinfo[i+1], "S_IFLNK")) {
+                        stbuf.st_mode = S_IFLNK;
+                    } else if (!strcmp(fileinfo[i+1], "S_IFBLK")) {
+                        stbuf.st_mode = S_IFBLK;
+                    } else if (!strcmp(fileinfo[i+1], "S_IFCHR")) {
+                        stbuf.st_mode = S_IFCHR;
+                    } else if (!strcmp(fileinfo[i+1], "S_IFIFO")) {
+                        stbuf.st_mode = S_IFIFO;
+                    } else if (!strcmp(fileinfo[i+1], "S_IFSOCK")) {
+                        stbuf.st_mode = S_IFSOCK;
+                    }
+                }
+            }
+
+            // free file information
+            afc_dictionary_free(fileinfo);
+
+            if (S_ISDIR(stbuf.st_mode)) {
+                // recurse into subdirectories
+                char *directoryname = (char*)malloc(strlen(filename) + 2);
+                strcpy(directoryname, filename);
+                strcat(directoryname, "/");
+
+                afc_remove_path_recursive(afc, directoryname);
+
+                if (directoryname)
+                    free(directoryname);
+
+                // remove filesystem entry
+                afc_remove_path(afc, filename);
+            } else if (S_ISREG(stbuf.st_mode) || S_ISLNK(stbuf.st_mode)) {
+                // remove filesystem entry
+                afc_remove_path(afc, filename);
+            }
+
+            if (filename)
+                free(filename);
+        }
+        afc_dictionary_free(list);
+    }
+}
+
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_emptyApplicationCacheNative(JNIEnv * env, jobject instance, jstring uuid, jstring bundleIdentifier){
+    const char *c_uuid = (*env)->GetStringUTFChars(env, uuid, 0);
+    const char *c_bundleIdentifier = (*env)->GetStringUTFChars(env, bundleIdentifier, 0);
+
+    idevice_t device = NULL;
+    lockdownd_client_t lockdown = NULL;
+    afc_client_t afc = NULL;
+    house_arrest_client_t house_arrest = NULL;
+    lockdownd_service_descriptor_t service = NULL;
+
+    if (IDEVICE_E_SUCCESS != idevice_new(&device, c_uuid)) {
+        throwException(env, "Cannot find device with uuid %s", c_uuid);
+        return;
     }
 
-    char* xml_result;
+    if (LOCKDOWN_E_SUCCESS != lockdownd_client_new_with_handshake(device, &lockdown, "java")) {
+        throwException(env, "Could not connect to lockdownd. Exiting.\n");
+        goto leave_cleanup;
+    }
 
-    originalMainFromIDeviceInstaller(env,xml_result,argc, argv);
-    printf("RESULT : %s",xml_result);
-    jstring retval = (*env)->NewStringUTF(env, xml_result);
-    return retval;
+    if ((lockdownd_start_service
+         (lockdown, "com.apple.mobile.house_arrest",
+          &service) != LOCKDOWN_E_SUCCESS) || !service) {
+        throwException(env, "Could not start com.apple.mobile.notification_proxy!\n");
+        goto leave_cleanup;
+    }
 
-}*/
+    if (house_arrest_client_new(device, service, &house_arrest) != HOUSE_ARREST_E_SUCCESS) {
+        throwException(env, "Could not create house_arrest service!\n");
+        goto leave_cleanup;
+    }  
+
+    if (service) {
+        lockdownd_service_descriptor_free(service);
+        service = NULL;
+    }
+
+    // request container access
+    house_arrest_error_t res = house_arrest_send_command(house_arrest, "VendDocuments", c_bundleIdentifier);
+    if (res != HOUSE_ARREST_E_SUCCESS) {
+        throwException(env, "Error %d when trying to get VendDocuments access\n", res);
+        goto leave_cleanup;
+    }
+
+    plist_t dict = NULL;
+    if (house_arrest_get_result(house_arrest, &dict) != HOUSE_ARREST_E_SUCCESS) {
+        if (house_arrest_get_result(house_arrest, &dict) != HOUSE_ARREST_E_SUCCESS) {
+            throwException(env, "Unable to get result from command.\n");
+            goto leave_cleanup;
+        }
+    }
+
+    plist_t node = plist_dict_get_item(dict, "Error");
+    if (node) {
+        char *str = NULL;
+        plist_get_string_val(node, &str);
+        throwException(env, "Error result returned %s\n", str);
+        if (str) free(str);
+        plist_free(dict);
+        dict = NULL;
+        goto leave_cleanup;
+    }
+
+    node = plist_dict_get_item(dict, "Status");
+    if (node) {
+        char *str = NULL;
+        plist_get_string_val(node, &str);
+        if (str && (strcmp(str, "Complete") != 0)) {
+            logWarning("Warning: Status is not 'Complete' but '%s'\n", str);
+        }
+        if (str) free(str);
+        plist_free(dict);
+        dict = NULL;
+    }
+    if (dict) {
+        plist_free(dict);
+    }
+
+    afc_error_t ae = afc_client_new_from_house_arrest_client(house_arrest, &afc);
+    if (ae != AFC_E_SUCCESS) {
+        throwException(env, "Unable to derieve afc client from house_arrest client due afc error %d\n", ae);
+        goto leave_cleanup;
+    }
+
+    if (ae == AFC_E_SUCCESS) {
+        // remove Documents
+        afc_remove_path_recursive(afc, "Documents/");
+        // remove Caches
+        afc_remove_path_recursive(afc, "Library/Caches/");
+        // remove Preferences
+        afc_remove_path_recursive(afc, "Library/Preferences/");
+        // remove tmp
+        afc_remove_path_recursive(afc, "tmp/");
+
+        // recreate minimal directory structure
+        afc_make_directory(afc, "Documents");
+        afc_make_directory(afc, "Library/Caches");
+        afc_make_directory(afc, "Library/Preferences");
+        afc_make_directory(afc, "tmp");
+    }
+
+    // clean up memory
+leave_cleanup:
+    if (house_arrest) {
+        house_arrest_client_free(house_arrest);
+    }
+    if (lockdown) {
+        lockdownd_client_free(lockdown);
+    }
+    if (device) {
+        idevice_free(device);
+    }
+}
+
 
 JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_installNative(JNIEnv * env, jobject instance, jobjectArray stringArray){
 

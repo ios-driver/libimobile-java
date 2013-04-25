@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_installNative
   (JNIEnv *, jobject, jobjectArray);
 
+/*
+ * Class:     org_uiautomation_iosdriver_services_DeviceInstallerService
+ * Method:    emptyApplicationCacheNative
+ * Signature: ([Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_emptyApplicationCacheNative
+  (JNIEnv *, jobject, jstring, jstring);
+
 #ifdef __cplusplus
 }
 #endif

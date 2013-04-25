@@ -20,6 +20,7 @@ public class DeviceInstallerService extends JNIService {
   private final String uuid;
 
   private native String installNative(String[] args);
+  private native void emptyApplicationCacheNative(String uuid, String bundleIdentifier);
 
   public DeviceInstallerService(String uuid) {
     this.uuid = uuid;
@@ -83,6 +84,10 @@ public class DeviceInstallerService extends JNIService {
 
   public void upgrade(String bundleIdentifier) {
     throw new RuntimeException("NI");
+  }
+
+  public void emptyApplicationCache(String bundleIdentifier) {
+    emptyApplicationCacheNative(uuid, bundleIdentifier);
   }
 
   /**

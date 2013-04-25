@@ -73,7 +73,7 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceManager
     }
 
     // do we need the handshake here ?
-    if (LOCKDOWN_E_SUCCESS != lockdownd_client_new_with_handshake(device, &client, "ideviceinfo")) {
+    if (LOCKDOWN_E_SUCCESS != lockdownd_client_new_with_handshake(device, &client, "java")) {
     	idevice_free(device);
     	throwException(env,"Found device, but cannot do lockdown.\n");
     }

@@ -381,7 +381,7 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstall
     instproxy_client_t ipc = NULL;
     np_client_t np = NULL;
     afc_client_t afc = NULL;
-    uint16_t port = 0;
+    lockdownd_service_descriptor_t descriptor = NULL;
     int res = 0;
     jstring retval;
 
@@ -398,20 +398,20 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstall
         return;
     }
 
-    if (LOCKDOWN_E_SUCCESS != lockdownd_client_new_with_handshake(phone, &client, "ideviceinstaller")) {
+    if (LOCKDOWN_E_SUCCESS != lockdownd_client_new_with_handshake(phone, &client, "java")) {
         fprintf(stderr, "Could not connect to lockdownd. Exiting.\n");
         goto leave_cleanup;
     }
 
     if ((lockdownd_start_service
          (client, "com.apple.mobile.notification_proxy",
-          &port) != LOCKDOWN_E_SUCCESS) || !port) {
+          &descriptor) != LOCKDOWN_E_SUCCESS) || !descriptor) {
         fprintf(stderr,
                 "Could not start com.apple.mobile.notification_proxy!\n");
         goto leave_cleanup;
     }
 
-    if (np_client_new(phone, port, &np) != NP_E_SUCCESS) {
+    if (np_client_new(phone, descriptor, &np) != NP_E_SUCCESS) {
         fprintf(stderr, "Could not connect to notification_proxy!\n");
         goto leave_cleanup;
     }
@@ -419,22 +419,21 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstall
 
     np_set_notify_callback(np, notifier, NULL);
 
-
     const char *noties[3] = { NP_APP_INSTALLED, NP_APP_UNINSTALLED, NULL };
 
     np_observe_notifications(np, noties);
 
 run_again:
-    port = 0;
+    descriptor = NULL;
     if ((lockdownd_start_service
          (client, "com.apple.mobile.installation_proxy",
-          &port) != LOCKDOWN_E_SUCCESS) || !port) {
+          &descriptor) != LOCKDOWN_E_SUCCESS) || !descriptor) {
         fprintf(stderr,
                 "Could not start com.apple.mobile.installation_proxy!\n");
         goto leave_cleanup;
     }
 
-    if (instproxy_client_new(phone, port, &ipc) != INSTPROXY_E_SUCCESS) {
+    if (instproxy_client_new(phone, descriptor, &ipc) != INSTPROXY_E_SUCCESS) {
         fprintf(stderr, "Could not connect to installation_proxy!\n");
         goto leave_cleanup;
     }
@@ -554,9 +553,9 @@ run_again:
         uint64_t af = 0;
         char buf[8192];
 
-        port = 0;
-        if ((lockdownd_start_service(client, "com.apple.afc", &port) !=
-             LOCKDOWN_E_SUCCESS) || !port) {
+        descriptor = NULL;
+        if ((lockdownd_start_service(client, "com.apple.afc", &descriptor) !=
+             LOCKDOWN_E_SUCCESS) || !descriptor) {
             fprintf(stderr, "Could not start com.apple.afc!\n");
             goto leave_cleanup;
         }
@@ -564,7 +563,7 @@ run_again:
         lockdownd_client_free(client);
         client = NULL;
 
-        if (afc_client_new(phone, port, &afc) != INSTPROXY_E_SUCCESS) {
+        if (afc_client_new(phone, descriptor, &afc) != INSTPROXY_E_SUCCESS) {
             fprintf(stderr, "Could not connect to AFC!\n");
             goto leave_cleanup;
         }
@@ -890,8 +889,8 @@ run_again:
                 goto leave_cleanup;
             }
 
-            port = 0;
-            if ((lockdownd_start_service(client, "com.apple.afc", &port) != LOCKDOWN_E_SUCCESS) || !port) {
+            descriptor = 0;
+            if ((lockdownd_start_service(client, "com.apple.afc", &descriptor) != LOCKDOWN_E_SUCCESS) || !descriptor) {
                 fprintf(stderr, "Could not start com.apple.afc!\n");
                 free(copy_path);
                 goto leave_cleanup;
@@ -900,7 +899,7 @@ run_again:
             lockdownd_client_free(client);
             client = NULL;
 
-            if (afc_client_new(phone, port, &afc) != INSTPROXY_E_SUCCESS) {
+            if (afc_client_new(phone, descriptor, &afc) != INSTPROXY_E_SUCCESS) {
                 fprintf(stderr, "Could not connect to AFC!\n");
                 goto leave_cleanup;
             }
@@ -1035,7 +1034,7 @@ run_again:
                 remove_archive_mode = 1;
                 free(options);
                 options = NULL;
-                if (LOCKDOWN_E_SUCCESS != lockdownd_client_new_with_handshake(phone, &client, "ideviceinstaller")) {
+                if (LOCKDOWN_E_SUCCESS != lockdownd_client_new_with_handshake(phone, &client, "java")) {
                     fprintf(stderr, "Could not connect to lockdownd. Exiting.\n");
                     goto leave_cleanup;
                 }

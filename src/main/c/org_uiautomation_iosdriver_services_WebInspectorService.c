@@ -15,7 +15,7 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_WebInspectorServ
         return;
     }
 
-    webinspector_error_t error = webinspector_start_service(device, &client);
+    webinspector_error_t error = webinspector_client_start_service(device, &client, "libimobile-java");
     if (error != WEBINSPECTOR_E_SUCCESS) {
         printf("Could not connect to the webinspector! Error: %i\n", error);
         return;

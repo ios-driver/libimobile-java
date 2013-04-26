@@ -105,8 +105,6 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_InstrumentsServi
     const char *c_bundleIdentifier = (*env)->GetStringUTFChars(env, bundleIdentifier, 0);
     const char *c_scriptBody = (*env)->GetStringUTFChars(env, scriptBody, 0);
 
-    idevice_set_debug_level(1);
-
     if (IDEVICE_E_SUCCESS != idevice_new(&device, c_uuid)) {
         throwException(env, "No idevice with uuid %s found, is it plugged in?\n", c_uuid);
         return;

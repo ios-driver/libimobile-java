@@ -343,19 +343,6 @@ static void parse_opts(int argc, char **argv)
 
 }
 
-static void afc_dictionary_free(char **dictionary)
-{
-    int i = 0;
-
-    if (!dictionary)
-        return;
-
-    for (i = 0; dictionary[i]; i++) {
-        free(dictionary[i]);
-    }
-    free(dictionary);
-}
-
 static void afc_remove_path_recursive(afc_client_t afc, char* path)
 {
     if (!afc || path == NULL)

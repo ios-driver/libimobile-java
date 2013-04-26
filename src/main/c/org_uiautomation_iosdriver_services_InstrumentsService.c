@@ -68,6 +68,24 @@ static void instruments_client_message_cb(instruments_client_t client, dt_messag
 				// send reply
 				instruments_client_send_message(client, reply);
 				dt_message_free(reply);
+		} else if (dt_message_get_type(message) == DTMESSAGE) {
+			payload = dt_message_get_payload(message);
+			payload = plist_array_get_item(payload, 0);
+			
+			char* m = NULL;
+			node = plist_dict_get_item(payload, "Message");
+			if (node && plist_get_node_type(node) == PLIST_STRING) {
+				plist_get_string_val(node, &m);
+			}
+
+			logInfo(m);
+
+			if (m) {
+				free(m);
+			}
+
+			node = NULL;
+			payload = NULL;
 		} else {
 			// handle agent status
 			if (strcmp(action, "agentIsReady") == 0) {

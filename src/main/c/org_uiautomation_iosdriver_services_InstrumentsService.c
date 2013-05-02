@@ -315,6 +315,18 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_InstrumentsServi
 	instruments_client_stop_observing_pid(instruments, handle_processcontrol, pid);
 
 leave_cleanup:
+	if (handle_capabilities) {
+		free(handle_capabilities);
+	}
+	if (handle_deviceinfo) {
+		free(handle_deviceinfo);
+	}
+	if (handle_processcontrol) {
+		free(handle_processcontrol);
+	}
+	if (handle_uiautomation) {
+		free(handle_uiautomation);
+	}
     if (instruments) {
         instruments_client_free(instruments);
     }

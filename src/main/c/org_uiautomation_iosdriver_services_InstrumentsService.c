@@ -246,9 +246,6 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_InstrumentsServi
 	if (handle_uiautomation)
 		instruments_client_start_agent_for_app_with_pid(instruments, handle_uiautomation, c_bundleIdentifier, pid);
 
-	if (handle_uiautomation)
-		instruments_client_start_agent_for_app_with_pid(instruments, handle_uiautomation, c_bundleIdentifier, pid);
-
 	// wait for ScriptAgent to start
 	int wait_count = 10;
 	while (!agent_is_ready && (wait_count-- > 0)) {

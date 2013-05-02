@@ -19,12 +19,17 @@ public class JniLoader {
 
 
   private JniLoader() {
-    path = extractFromJar();
     platform = System.getProperty("os.name");
+    path = extractFromJar();
   }
 
   private String getResource(String platform) {
-    String lib = "/generated/libiosdriver.jnilib";
+    String lib = "/generated/libiosdriver";
+    if (platform.contains("Linux")) {
+      lib += ".so";
+    } else if (platform.contains("Mac OS")) {
+      lib += ".dylib";
+    }
     System.out.println("loading lib " + lib);
     return lib;
   }

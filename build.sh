@@ -1,64 +1,50 @@
 #!/bin/bash
+CC=gcc
 
-VERSION="0.6-SNAPSHOT"
-IOS_DRIVER="/Users/freynaud/Documents/workspace/ios-driver/"
-JAVA_H="/System/Library/Frameworks/JavaVM.framework/Headers"
-LIB_IMOBILE="/Users/freynaud/Documents/workspace/libimobiledevice/include"
-MAC_PORT="/opt/local/include/"
-LIB_ZIP="/opt/local/lib/libzip/include"
-LIB_BPLIST="/Users/freynaud/Documents/workspace/libplist/build/"
-LIB_USBMUXD="/Users/freynaud/imobile/usbmuxd-1.0.8/build/"
+JNILIB_NAME=libiosdriver
+IOS_DRIVER_PATH=$(pwd)
+BUILD_PATH=$IOS_DRIVER_PATH/build
 
+MACHINE=$($CC -dumpmachine)
 
-#mvn clean
-rm -f src/main/resources/generated/libiosdriver.jnilib
-#mkdir target
+if [[ "$MACHINE" =~ "darwin" ]]
+then
+  JAVA_H="-I/System/Library/Frameworks/JavaVM.framework/Headers"
+  SHAREDEXT=.dylib
+  FLAGS=-dynamiclib
+fi
 
-gcc  -I${JAVA_H} -I${MAC_PORT} -I${LIB_IMOBILE} -c src/main/c/org_uiautomation_iosdriver_services_WebInspectorService.c  -o target/a.o
-gcc  -I${JAVA_H} -I${MAC_PORT} -I${LIB_IMOBILE}  -c src/main/c/org_uiautomation_iosdriver_services_DeviceManagerService.c  -o target/b.o
-gcc  -I${JAVA_H} -I${MAC_PORT} -I${LIB_IMOBILE} -I${LIB_ZIP}  -c src/main/c/org_uiautomation_iosdriver_services_DeviceInstallerService.c -o target/c.o
-gcc  -I${JAVA_H} -I${MAC_PORT} -I${LIB_IMOBILE} -c src/main/c/org_uiautomation_iosdriver_services_LoggerService.c  -o target/d.o
+if [[ "$MACHINE" =~ "linux" ]]
+then
+  JAVA_H="-I$JAVA_HOME/include -I$JAVA_HOME/include/linux"
+  SHAREDEXT=.so
+  FLAGS="-Wall -fPIC -shared -Wl,-soname,$JNILIB_NAME$SHAREDEXT -lc"
+fi
 
+STDHEADERS="-I/opt/local/include/ -I/usr/include"
 
-#gcc   -L/opt/local/lib  -l plist -l zip -l imobiledevice -dynamiclib   -o src/main/resources/generated/libiosdriver.jnilib target/a.o target/b.o target/c.o
+LIBIMOBILEDEVICE_CFLAGS=$(pkg-config --cflags libimobiledevice-1.0)
+LIBZIP_CFLAGS=$(pkg-config --cflags libzip)
+LIBPLIST_CFLAGS=$(pkg-config --cflags libplist)
+LIBUSBMUXD_CFAGS=$(pkg-config --cflags libusbmuxd)
 
+TARGET_PATH=$IOS_DRIVER_PATH/src/main/resources/generated/
+TARGET_NAME=$JNILIB_NAME$SHAREDEXT
+TARGET=$TARGET_PATH$TARGET_NAME
 
-gcc -dynamiclib target/a.o target/b.o  target/c.o target/d.o \
-  ${LIB_USBMUXD}libusbmuxd/CMakeFiles/libusbmuxd.dir/libusbmuxd.c.o \
-  ${LIB_USBMUXD}libusbmuxd/CMakeFiles/libusbmuxd.dir/sock_stuff.c.o  \
-  ${LIB_USBMUXD}libusbmuxd/CMakeFiles/libusbmuxd.dir/__/common/utils.c.o \
-  ${LIB_BPLIST}libcnary/CMakeFiles/libcnary.dir/iterator.c.o \
-  ${LIB_BPLIST}libcnary/CMakeFiles/libcnary.dir/list.c.o \
-  ${LIB_BPLIST}libcnary/CMakeFiles/libcnary.dir/node.c.o \
-  ${LIB_BPLIST}libcnary/CMakeFiles/libcnary.dir/node_iterator.c.o \
-  ${LIB_BPLIST}libcnary/CMakeFiles/libcnary.dir/node_list.c.o \
-  ${LIB_BPLIST}src/CMakeFiles/plist.dir/plist.c.o  \
-  ${LIB_BPLIST}src/CMakeFiles/plist.dir/hashtable.c.o  \
-  ${LIB_BPLIST}src/CMakeFiles/plist.dir/bytearray.c.o  \
-  ${LIB_BPLIST}src/CMakeFiles/plist.dir/ptrarray.c.o  \
-  ${LIB_BPLIST}src/CMakeFiles/plist.dir/bplist.c.o  \
-  ${LIB_BPLIST}src/CMakeFiles/plist.dir/base64.c.o  \
-  ${LIB_BPLIST}src/CMakeFiles/plist.dir/xplist.c.o  \
-  ${LIB_BPLIST}plutil/CMakeFiles/plutil.dir/plutil.c.o  \
-  /usr/local/lib/libimobiledevice.a \
-  /opt/local/lib/libxml2.a \
-  /opt/local/lib/libiconv.a \
-  /opt/local/lib/liblzma.a \
-  /opt/local/lib/libzip.a \
-  /opt/local/lib/libcrypto.a \
-  /opt/local/lib/libz.a \
-  /opt/local/lib/libssl.a \
-  -o src/main/resources/generated/libiosdriver.jnilib
+rm -f $TARGET
+mkdir -p $BUILD_PATH
 
+$CC -fPIC ${JAVA_H} $STDHEADERS $LIBIMOBILEDEVICE_CFLAGS -c src/main/c/org_uiautomation_iosdriver_services_WebInspectorService.c -o $BUILD_PATH/a.o
+$CC -fPIC ${JAVA_H} $STDHEADERS $LIBIMOBILEDEVICE_CFLAGS -c src/main/c/org_uiautomation_iosdriver_services_DeviceManagerService.c -o $BUILD_PATH/b.o
+$CC -fPIC ${JAVA_H} $STDHEADERS $LIBIMOBILEDEVICE_CFLAGS ${LIBZIP_CFLAGS} -c src/main/c/org_uiautomation_iosdriver_services_DeviceInstallerService.c -o $BUILD_PATH/c.o
+$CC -fPIC ${JAVA_H} $STDHEADERS $LIBIMOBILEDEVICE_CFLAGS -c src/main/c/org_uiautomation_iosdriver_services_LoggerService.c -o $BUILD_PATH/d.o
+$CC -fPIC ${JAVA_H} $STDHEADERS $LIBIMOBILEDEVICE_CFLAGS -c src/main/c/org_uiautomation_iosdriver_services_InstrumentsService.c -o $BUILD_PATH/e.o
 
-#rm -rf ~/.m2/repository/org/uiautomation/ios-driver-jni
-#mvn package
-#mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file -Dfile=target/ios-driver-jni-${VERSION}.jar \
-#    -DgroupId=org.uiautomation \
-#    -DartifactId=ios-driver-jni \
-#    -Dversion=${VERSION} \
-#    -Dpackaging=jar  \
-#    -DlocalRepositoryPath=${IOS_DRIVER}server/libs  \
-
-
-
+$CC $FLAGS \
+  $(pkg-config --libs libusbmuxd) \
+  $(pkg-config --libs libplist) \
+  $(pkg-config --libs libimobiledevice-1.0) \
+  $(pkg-config --libs libzip) \
+  $BUILD_PATH/a.o $BUILD_PATH/b.o $BUILD_PATH/c.o $BUILD_PATH/d.o $BUILD_PATH/e.o \
+  -o $TARGET

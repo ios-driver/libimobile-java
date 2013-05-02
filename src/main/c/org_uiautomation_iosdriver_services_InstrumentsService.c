@@ -35,6 +35,7 @@ static JavaVM *jvm;
 
 static int agent_is_ready = 0;
 static int script_status = 0;
+static int protocol_version = 0;
 
 static void instruments_client_message_cb(instruments_client_t client, dt_message_t message) {
 	plist_t payload = NULL;
@@ -117,7 +118,6 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_InstrumentsServi
     instruments_client_t instruments = NULL;
     lockdownd_service_descriptor_t service = NULL;
     int res = 0;
-    int protocol_version = 0;
 
     const char *c_uuid = uuid == NULL ? NULL: (*env)->GetStringUTFChars(env, uuid, 0);
     const char *c_bundleIdentifier = (*env)->GetStringUTFChars(env, bundleIdentifier, 0);

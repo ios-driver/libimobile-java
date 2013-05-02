@@ -37,6 +37,19 @@ static int agent_is_ready = 0;
 static int script_status = 0;
 static int protocol_version = 0;
 
+static void buffer_write_to_filename(const char *filename, const char *buffer, uint64_t length)
+{
+	FILE *f;
+
+	f = fopen(filename, "ab");
+	if (!f)
+		f = fopen(filename, "wb");
+	if (f) {
+		fwrite(buffer, sizeof(char), length, f);
+		fclose(f);
+	}
+}
+
 static int instruments_client_message_handler_cb(instruments_client_t client, dt_message_t message) {
 	plist_t payload = NULL;
 	plist_t node = NULL;
@@ -111,6 +124,26 @@ static int instruments_client_message_handler_cb(instruments_client_t client, dt
 
 		logInfo(m);
 		printf("time %ld type %d message \"%s\"\n", timestamp.tv_sec, mtype, m);
+
+		node = plist_dict_get_item(payload, "Screenshot");
+		if (node && plist_get_node_type(node) == PLIST_DATA) {
+			plist_get_data_val(node, &screenshot, &screenshot_size);
+		}
+
+		// save screenshot to file
+		if (screenshot_size > 0) {
+			char* filename = NULL;
+			if (mtype == 8) {
+				// use specific filename
+				filename = (char*)malloc(strlen(m)+strlen(".png")+1);
+				strcpy(filename, m);
+				strcat(filename, ".png");
+				buffer_write_to_filename(filename, screenshot, screenshot_size);
+				if (filename) {
+					free(filename);
+				}
+			}
+		}
 
 		if (m) {
 			free(m);

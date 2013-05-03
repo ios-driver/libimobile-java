@@ -106,7 +106,8 @@ public class DeviceManagerService extends JNIService {
     listeningThread.start();
   }
 
-  public void stopDetection() {
+  public boolean stopDetection() {
+    boolean res = running;
     run = false;
     while (running) {
       try {
@@ -116,6 +117,7 @@ public class DeviceManagerService extends JNIService {
       }
       log.warning("waiting for the listener thread to finish.");
     }
+    return res;
   }
 
 

@@ -5,7 +5,6 @@ import com.dd.plist.NSObject;
 import com.dd.plist.XMLPropertyListParser;
 
 import org.uiautomation.iosdriver.ApplicationInfo;
-import org.uiautomation.iosdriver.services.jnitools.JNILoggerListener;
 import org.uiautomation.iosdriver.services.jnitools.JNIService;
 
 import java.io.File;
@@ -88,7 +87,11 @@ public class DeviceInstallerService extends JNIService {
   }
 
   public void emptyApplicationCache(String bundleIdentifier) {
+    boolean wasRunning = DeviceManagerService.getInstance().stopDetection();
     emptyApplicationCacheNative(uuid, bundleIdentifier);
+    if (wasRunning) {
+      DeviceManagerService.getInstance().startDetection();
+    }
   }
 
   /**
@@ -150,7 +153,7 @@ public class DeviceInstallerService extends JNIService {
         new DeviceInstallerService("d1ce6333af579e27d166349dc8a1989503ba5b4f");
 
     service.emptyApplicationCache("com.ebay.iphone");
-   //System.out.println(service.getApplication("com.ebay.iphon2e"));
+    //System.out.println(service.getApplication("com.ebay.iphon2e"));
 
   }
 

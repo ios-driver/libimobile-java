@@ -20,6 +20,7 @@ public class DeviceInstallerService extends JNIService {
   private final String uuid;
 
   private native String installNative(String[] args);
+
   private native void emptyApplicationCacheNative(String uuid, String bundleIdentifier);
 
   public DeviceInstallerService(String uuid) {
@@ -91,6 +92,19 @@ public class DeviceInstallerService extends JNIService {
   }
 
   /**
+   * @return the info about this bundle id for the device. Null is the app isn't installed.
+   */
+  public ApplicationInfo getApplication(String bundleId) {
+    List<ApplicationInfo> all = getAllApplications();
+    for (ApplicationInfo app : all) {
+      if (bundleId.equals(app.getProperty("CFBundleIdentifier"))) {
+        return app;
+      }
+    }
+    return null;
+  }
+
+  /**
    *
    * @param bundleIdentifier
    * @param andUninstall
@@ -130,56 +144,13 @@ public class DeviceInstallerService extends JNIService {
   }
 
   public static void main(String[] args) {
-    String app = "com.yourcompany.UICatalog";
-    LoggerService.registerListener(new JNILoggerListener() {
-      @Override
-      public void onLog(int level, String message) {
-        System.out.println("(" + level + ")" + " - " + message);
-      }
-    });
-    args = new String[]{"bla", "-a", "com.yourcompany.UICatalog"};
+
     DeviceInstallerService
         service =
         new DeviceInstallerService("d1ce6333af579e27d166349dc8a1989503ba5b4f");
-    //service.installNative(args);
-    //
 
-    service.install(new File("/Users/freynaud/build/work/uicatalog.ipa"));
-    //service.removeArchive(app);
-    service.archive(app, true, false, new File("/Users/freynaud/build/tmp"), true);
-    //service.uninstall("com.yourcompany.UICatalog");
-    System.out.println(service.getSystemApplications());
-    System.out.println(service.getAllApplications());
-    //service.removeArchive(app);
-    service.archive("com.yourcompany.UICatalog", true, false, new File("/Users/freynaud/build/tmp"),
-                    true);
-    service.archive("com.yourcompany.UICatalog", true, false, new File("/Users/freynaud/build/tmp"),
-                    true);
-    service.archive("com.yourcompany.UICatalog", true, false, new File("/Users/freynaud/build/tmp"),
-                    true);
-    service.archive("com.yourcompany.UICatalog", true, false, new File("/Users/freynaud/build/tmp"),
-                    true);
-
-    //System.out.println("INSTALL\n");
-    service.install(new File("/Users/freynaud/build/work/uicatalog.ipa"));
-    System.out.println("LIST\n");
-    System.out.println(service.getUserApplications());
-    //System.out.println("UNINSTALL\n");
-    //
-    // service.uninstall(app);
-    service.install(new File("/Users/freynaud/build/work/uicatalog.ipa"));
-
-    service.removeArchive(app);
-    service
-        .archive("com.yourcompany.UICatalog", false, false, new File("/Users/freynaud/build/tmp"),
-                 false);
-    service.removeArchive(app);
-    service
-        .archive("com.yourcompany.UICatalog", false, false, new File("/Users/freynaud/build/tmp2"),
-                 false);
-
-    //service.removeArchive(app);
-    //service.archive("com.yourcompany.UICatalog", false, false, new File("/Users/freynaud/build/tmp"),true);
+    service.emptyApplicationCache("com.ebay.iphone");
+   //System.out.println(service.getApplication("com.ebay.iphon2e"));
 
   }
 

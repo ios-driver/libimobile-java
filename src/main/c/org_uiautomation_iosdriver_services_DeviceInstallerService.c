@@ -430,11 +430,11 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerS
     afc_client_t afc = NULL;
     house_arrest_client_t house_arrest = NULL;
     lockdownd_service_descriptor_t service = NULL;
-
     if (IDEVICE_E_SUCCESS != idevice_new(&device, c_uuid)) {
         throwException(env, "Cannot find device with uuid %s", c_uuid);
         return;
     }
+
 
     if (LOCKDOWN_E_SUCCESS != lockdownd_client_new_with_handshake(device, &lockdown, "java")) {
         throwException(env, "Could not connect to lockdownd. Exiting.\n");
@@ -457,7 +457,6 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerS
         lockdownd_service_descriptor_free(service);
         service = NULL;
     }
-
     // request container access
     house_arrest_error_t res = house_arrest_send_command(house_arrest, "VendDocuments", c_bundleIdentifier);
     if (res != HOUSE_ARREST_E_SUCCESS) {
@@ -483,7 +482,6 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerS
         dict = NULL;
         goto leave_cleanup;
     }
-
     node = plist_dict_get_item(dict, "Status");
     if (node) {
         char *str = NULL;
@@ -504,7 +502,6 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerS
         throwException(env, "Unable to derieve afc client from house_arrest client due afc error %d\n", ae);
         goto leave_cleanup;
     }
-
     if (ae == AFC_E_SUCCESS) {
         // remove Documents
         afc_remove_path_recursive(afc, "Documents/");
@@ -521,7 +518,6 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerS
         afc_make_directory(afc, "Library/Preferences");
         afc_make_directory(afc, "tmp");
     }
-
     // clean up memory
 leave_cleanup:
     if (house_arrest) {

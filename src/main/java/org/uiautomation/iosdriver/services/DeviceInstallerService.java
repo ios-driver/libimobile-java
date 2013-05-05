@@ -157,6 +157,27 @@ public class DeviceInstallerService extends JNIService {
 
   }
 
+
+  private native void setLockDownValue(String uuid, String domain, String key, String value);
+
+  /*
+    <key>HostKeyboard</key>
+    <string>de</string>
+    <key>Keyboard</key>
+    <string>de_DE</string>
+    <key>Language</key>
+    <string>pl</string>
+    <key>Locale</key>
+    <string>en_US</string>
+    */
+  public void setLocale(String locale) {
+    setLockDownValue(uuid, "com.apple.international", "Locale", locale);
+  }
+
+  public void setLanguage(String language) {
+    setLockDownValue(uuid, "com.apple.international", "Language", language);
+  }
+
   private List<ApplicationInfo> extractApplications(String rawXML) {
     List<ApplicationInfo> infos = new ArrayList<ApplicationInfo>();
     NSArray apps = null;

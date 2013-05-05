@@ -63,6 +63,41 @@ int notified = 0;
 static JavaVM *jvm;
 
 
+
+
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_setLockDownValue(JNIEnv *env, jobject thiz, jstring j_uuid, jstring j_domain,jstring j_key,jstring j_value){
+    char* uuid = (char*)(*env)->GetStringUTFChars(env,j_uuid,NULL);
+    char* domain = (char*)(*env)->GetStringUTFChars(env,j_domain,NULL);
+    char* key = (char*)(*env)->GetStringUTFChars(env,j_key,NULL);
+    char* value = (char*)(*env)->GetStringUTFChars(env,j_value,NULL);
+
+    printf("device: %s domain : %s key :%s value : %s\n ",uuid,domain,key,value);
+	idevice_t device = NULL;
+    lockdownd_client_t client = NULL;
+
+    //idevice_set_debug_level(1);
+
+    if (IDEVICE_E_SUCCESS != idevice_new(&device, uuid)) {
+        throwException(env,"No device found, is it plugged in?\n");
+        return;
+    }
+
+    if (LOCKDOWN_E_SUCCESS != lockdownd_client_new_with_handshake(device, &client, "java")) {
+        idevice_free(device);
+        return;
+    }
+
+    lockdownd_set_value(client, domain, key, plist_new_string(value));
+
+    lockdownd_client_free(client);
+    idevice_free(device);
+
+
+    return;
+
+
+}
+
 static void notifier(const char *notification, void *unused){
 	notified = 1;
 }

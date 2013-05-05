@@ -20,8 +20,13 @@ JNIEXPORT jstring JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstall
  * Method:    emptyApplicationCacheNative
  * Signature: ([Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_emptyApplicationCacheNative
-  (JNIEnv *, jobject, jstring, jstring);
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_emptyApplicationCacheNative  (JNIEnv *, jobject, jstring, jstring);
+
+
+
+
+
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerService_setLockDownValue(JNIEnv *, jobject, jstring, jstring,jstring,jstring);
 
 #ifdef __cplusplus
 }

@@ -35,66 +35,127 @@ static JavaVM *jvm;
 
 static int agent_is_ready = 0;
 static int script_status = 0;
+static int protocol_version = 0;
 
-static void instruments_client_message_cb(instruments_client_t client, dt_message_t message) {
+static void buffer_write_to_filename(const char *filename, const char *buffer, uint64_t length)
+{
+	FILE *f;
+
+	f = fopen(filename, "ab");
+	if (!f)
+		f = fopen(filename, "wb");
+	if (f) {
+		fwrite(buffer, sizeof(char), length, f);
+		fclose(f);
+	}
+}
+
+static int instruments_client_message_handler_cb(instruments_client_t client, dt_message_t message) {
 	plist_t payload = NULL;
 	plist_t node = NULL;
 
 	const char* action = dt_message_get_action(message);
-	if (action) {
-		if (dt_message_get_type(message) == DTMESSAGEDISPATCH) {
-				// build reply message
-				dt_message_t reply = dt_message_new(DTMESSAGEREPLY);
-				dt_message_set_identifier(reply, dt_message_get_identifier(message));
-				dt_message_set_priority(reply, 3);
-				dt_message_set_identifier_of_send_dispatch(reply, dt_message_get_identifier(message));
-				dt_message_set_payload_with_class(reply, 4, "$null");
-				const char *service_code = dt_message_get_service_code(message);
-				if (service_code) {
-					dt_message_set_service_code(reply, service_code);
-				}
+	const int type = dt_message_get_type(message);
 
-				// read script status
-				if (action && strcmp(action, "updateScriptStatus:") == 0) {
-					payload = dt_message_get_payload(message);
-					node = plist_array_get_item(payload, 0);
-					uint64_t status = 0;
-					plist_get_uint_val(node, &status);
-					script_status += status;
-					node = NULL;
-					payload = NULL;
-				}
-
-				// send reply
-				instruments_client_send_message(client, reply);
-				dt_message_free(reply);
-		} else if (dt_message_get_type(message) == DTMESSAGE) {
-			payload = dt_message_get_payload(message);
-			payload = plist_array_get_item(payload, 0);
-			
-			char* m = NULL;
-			node = plist_dict_get_item(payload, "Message");
-			if (node && plist_get_node_type(node) == PLIST_STRING) {
-				plist_get_string_val(node, &m);
-			}
-
-			logInfo(m);
-
-			if (m) {
-				free(m);
-			}
-
-			node = NULL;
-			payload = NULL;
-		} else {
-			// handle agent status
-			if (strcmp(action, "agentIsReady") == 0) {
+	if ((type == DTMESSAGEDISPATCH) || (type == DTMESSAGEASYNCDISPATCH) && action) {
+			// read script status
+			if (strcmp(action, "updateScriptStatus:") == 0) {
+				payload = dt_message_get_payload(message);
+				node = plist_array_get_item(payload, 0);
+				uint64_t status = 0;
+				plist_get_uint_val(node, &status);
+				script_status += status;
+				node = NULL;
+				payload = NULL;
+			} else if (strcmp(action, "agentIsReady") == 0) {
 				agent_is_ready = 1;
 			} else if (strcmp(action, "agentIsGone") == 0) {
 				agent_is_ready = 0;
 			}
+
+			if ((protocol_version > INSTRUMENTS_PROTOCOL_VERSION_5) && (type == DTMESSAGEASYNCDISPATCH))
+				return 1;
+
+			// build reply message
+			dt_message_t reply = dt_message_new(type == DTMESSAGEDISPATCH ? DTMESSAGEREPLY: DTMESSAGEASYNCREPLY);
+			dt_message_set_identifier(reply, dt_message_get_identifier(message));
+			dt_message_set_priority(reply, type == DTMESSAGEDISPATCH ? 3: 4);
+			dt_message_set_identifier_of_send_dispatch(reply, dt_message_get_identifier(message));
+			dt_message_set_payload_with_class(reply, 4, "$null");
+			const char *service_code = dt_message_get_service_code(message);
+			if (service_code) {
+				dt_message_set_service_code(reply, service_code);
+			}
+
+			// send reply
+			if (type == DTMESSAGEDISPATCH)
+				instruments_client_send_message(client, reply);
+			else
+				instruments_client_send_message_queued(client, reply);
+
+			dt_message_free(reply);
+			reply = NULL;
+
+			return 1;
+	} else if (dt_message_get_type(message) == DTMESSAGE) {
+		payload = dt_message_get_payload(message);
+		payload = plist_array_get_item(payload, 0);
+		
+		struct timeval timestamp = { 0, 0 };
+		uint64_t mtype = 0;
+		char* m = NULL;
+		char* screenshot = NULL;
+		uint64_t screenshot_size = 0;
+
+		node = plist_dict_get_item(payload, "Timestamp");
+		if (node && plist_get_node_type(node) == PLIST_DATE) {
+			plist_get_date_val(node, (int32_t*)&timestamp.tv_sec, (int32_t*)&timestamp.tv_usec);
 		}
+
+		node = plist_dict_get_item(payload, "Type");
+		if (node && plist_get_node_type(node) == PLIST_UINT) {
+			plist_get_uint_val(node, &mtype);
+		}
+
+		node = plist_dict_get_item(payload, "Message");
+		if (node && plist_get_node_type(node) == PLIST_STRING) {
+			plist_get_string_val(node, &m);
+		}
+
+		logInfo(m);
+		printf("time %ld type %d message \"%s\"\n", timestamp.tv_sec, mtype, m);
+
+		node = plist_dict_get_item(payload, "Screenshot");
+		if (node && plist_get_node_type(node) == PLIST_DATA) {
+			plist_get_data_val(node, &screenshot, &screenshot_size);
+		}
+
+		// save screenshot to file
+		if (screenshot_size > 0) {
+			char* filename = NULL;
+			if (mtype == 8) {
+				// use specific filename
+				filename = (char*)malloc(strlen(m)+strlen(".png")+1);
+				strcpy(filename, m);
+				strcat(filename, ".png");
+				buffer_write_to_filename(filename, screenshot, screenshot_size);
+				if (filename) {
+					free(filename);
+				}
+			}
+		}
+
+		if (m) {
+			free(m);
+		}
+
+		node = NULL;
+		payload = NULL;
+
+		return 1;
 	}
+
+	return -1;
 }
 
 /*
@@ -117,7 +178,6 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_InstrumentsServi
     instruments_client_t instruments = NULL;
     lockdownd_service_descriptor_t service = NULL;
     int res = 0;
-    int protocol_version = 0;
 
     const char *c_uuid = uuid == NULL ? NULL: (*env)->GetStringUTFChars(env, uuid, 0);
     const char *c_bundleIdentifier = (*env)->GetStringUTFChars(env, bundleIdentifier, 0);
@@ -174,7 +234,7 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_InstrumentsServi
 	service = NULL;
 
     instruments_client_set_protocol_version(instruments, protocol_version);
-    instruments_client_set_message_callback(instruments, &instruments_client_message_cb, NULL);
+    instruments_client_set_message_handler(instruments, &instruments_client_message_handler_cb);
 
     int version = -1;
 	char* handle_capabilities = NULL;
@@ -219,9 +279,6 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_InstrumentsServi
 	if (handle_uiautomation)
 		instruments_client_start_agent_for_app_with_pid(instruments, handle_uiautomation, c_bundleIdentifier, pid);
 
-	if (handle_uiautomation)
-		instruments_client_start_agent_for_app_with_pid(instruments, handle_uiautomation, c_bundleIdentifier, pid);
-
 	// wait for ScriptAgent to start
 	int wait_count = 10;
 	while (!agent_is_ready && (wait_count-- > 0)) {
@@ -258,6 +315,18 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_InstrumentsServi
 	instruments_client_stop_observing_pid(instruments, handle_processcontrol, pid);
 
 leave_cleanup:
+	if (handle_capabilities) {
+		free(handle_capabilities);
+	}
+	if (handle_deviceinfo) {
+		free(handle_deviceinfo);
+	}
+	if (handle_processcontrol) {
+		free(handle_processcontrol);
+	}
+	if (handle_uiautomation) {
+		free(handle_uiautomation);
+	}
     if (instruments) {
         instruments_client_free(instruments);
     }

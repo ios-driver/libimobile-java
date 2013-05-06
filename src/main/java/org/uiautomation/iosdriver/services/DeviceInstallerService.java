@@ -18,6 +18,7 @@ public class DeviceInstallerService extends JNIService {
 
   private final String uuid;
 
+
   private native String installNative(String[] args);
 
   private native void emptyApplicationCacheNative(String uuid, String bundleIdentifier);
@@ -46,16 +47,18 @@ public class DeviceInstallerService extends JNIService {
         , "-o", type
         , "-o", "xml"
     };
-    String raw = installNative(args);
+    String raw = installNativeSafe(args);
     return extractApplications(raw);
   }
+
+
 
   public void install(File ipa) {
     String[] args = new String[]{"firstArgInC"
         , "-U", uuid
         , "-i", ipa.getAbsolutePath()
     };
-    installNative(args);
+    installNativeSafe(args);
   }
 
   public void uninstall(String bundleIdentifier) {
@@ -63,7 +66,7 @@ public class DeviceInstallerService extends JNIService {
         , "-U", uuid
         , "-u", bundleIdentifier
     };
-    installNative(args);
+    installNativeSafe(args);
   }
 
   public void restore(String bundleIdentifier) {
@@ -71,7 +74,7 @@ public class DeviceInstallerService extends JNIService {
         , "-U", uuid
         , "-r", bundleIdentifier
     };
-    installNative(args);
+    installNativeSafe(args);
   }
 
   public void removeArchive(String bundleIdentifier) {
@@ -79,11 +82,20 @@ public class DeviceInstallerService extends JNIService {
         , "-U", uuid
         , "-R", bundleIdentifier
     };
-    installNative(args);
+    installNativeSafe(args);
   }
 
   public void upgrade(String bundleIdentifier) {
     throw new RuntimeException("NI");
+  }
+
+  private String installNativeSafe(String[] args) {
+    boolean wasRunning = DeviceManagerService.getInstance().stopDetection();
+    String res = installNative(args);
+    if (wasRunning) {
+      DeviceManagerService.getInstance().startDetection();
+    }
+    return res;
   }
 
   public void emptyApplicationCache(String bundleIdentifier) {
@@ -140,7 +152,7 @@ public class DeviceInstallerService extends JNIService {
       }*/
     }
 
-    installNative(cmd.toArray(new String[0]));
+    installNativeSafe(cmd.toArray(new String[0]));
     if (andRemoveAfterBackup) {
       removeArchive(bundleIdentifier);
     }
@@ -152,9 +164,12 @@ public class DeviceInstallerService extends JNIService {
         service =
         new DeviceInstallerService("d1ce6333af579e27d166349dc8a1989503ba5b4f");
 
-    service.emptyApplicationCache("com.ebay.iphone");
-    //System.out.println(service.getApplication("com.ebay.iphon2e"));
-
+    service.uninstall("com.yourcompany.UICatalog");
+    service.install(new File(
+        "/Users/freynaud/Documents/workspace/ios-driver/applications/com.yourcompany.UICatalog.ipa"));
+    service.uninstall("com.yourcompany.UICatalog");
+    service.install(new File(
+        "/Users/freynaud/Documents/workspace/ios-driver/applications/com.yourcompany.UICatalog.ipa"));
   }
 
 

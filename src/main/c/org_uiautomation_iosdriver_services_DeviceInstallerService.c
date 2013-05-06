@@ -71,7 +71,7 @@ JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_DeviceInstallerS
     char* key = (char*)(*env)->GetStringUTFChars(env,j_key,NULL);
     char* value = (char*)(*env)->GetStringUTFChars(env,j_value,NULL);
 
-    printf("device: %s domain : %s key :%s value : %s\n ",uuid,domain,key,value);
+    //printf("device: %s domain : %s key :%s value : %s\n ",uuid,domain,key,value);
 	idevice_t device = NULL;
     lockdownd_client_t client = NULL;
 

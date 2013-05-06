@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 
 import org.uiautomation.iosdriver.DeviceDetector;
 import org.uiautomation.iosdriver.DeviceInfo;
-import org.uiautomation.iosdriver.services.jnitools.*;
+import org.uiautomation.iosdriver.services.jnitools.JNIService;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 
 public class DeviceManagerService extends JNIService {
 
-  private final DeviceDetector detector;
+  private DeviceDetector detector;
   private Thread listeningThread;
   private final Map<String, DeviceInfo> deviceByUuid = new HashMap<String, DeviceInfo>();
   private volatile boolean run = true;
@@ -24,6 +24,7 @@ public class DeviceManagerService extends JNIService {
   private static DeviceManagerService INSTANCE;
 
 
+  // TODO freynaud change that
   public synchronized static DeviceManagerService create(DeviceDetector detector) {
     if (INSTANCE == null) {
       INSTANCE = new DeviceManagerService(detector);
@@ -34,6 +35,15 @@ public class DeviceManagerService extends JNIService {
       return INSTANCE;
     }
   }
+
+  public static DeviceDetector getDetector() {
+    if (INSTANCE == null) {
+      return null;
+    } else {
+      return INSTANCE.detector;
+    }
+  }
+
 
   public synchronized static DeviceManagerService getInstance() {
     if (INSTANCE == null) {

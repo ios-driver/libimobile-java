@@ -52,7 +52,6 @@ public class DeviceInstallerService extends JNIService {
   }
 
 
-
   public void install(File ipa) {
     String[] args = new String[]{"firstArgInC"
         , "-U", uuid
@@ -210,4 +209,7 @@ public class DeviceInstallerService extends JNIService {
     return infos;
   }
 
+  public String getDeviceId() {
+    return this.uuid;
+  }
 }

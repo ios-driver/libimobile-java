@@ -9,8 +9,9 @@
 static webinspector_client_t client = NULL;
 static idevice_t device = NULL;
 
-JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_WebInspectorService_start(JNIEnv * env, jobject thiz, jstring uuid){
-	if (IDEVICE_E_SUCCESS != idevice_new(&device, NULL)) {
+JNIEXPORT void JNICALL Java_org_uiautomation_iosdriver_services_WebInspectorService_start(JNIEnv * env, jobject thiz, jstring j_uuid){
+    char* uuid = (char*)(*env)->GetStringUTFChars(env,j_uuid,NULL);
+	if (IDEVICE_E_SUCCESS != idevice_new(&device, uuid)) {
         printf("No device found, is it plugged in?\n");
         return;
     }

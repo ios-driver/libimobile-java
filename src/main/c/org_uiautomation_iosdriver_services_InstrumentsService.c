@@ -57,8 +57,10 @@ static int instruments_client_message_handler_cb(instruments_client_t client, dt
 	const char* action = dt_message_get_action(message);
 	const int type = dt_message_get_type(message);
 
+    //printf("Action : %s type: %i\n",action,type);
+
 	if ((type == DTMESSAGEDISPATCH) || (type == DTMESSAGEASYNCDISPATCH) && action) {
-			// read script status
+	        // read script status
 			if (strcmp(action, "updateScriptStatus:") == 0) {
 				payload = dt_message_get_payload(message);
 				node = plist_array_get_item(payload, 0);
@@ -72,6 +74,7 @@ static int instruments_client_message_handler_cb(instruments_client_t client, dt
 			} else if (strcmp(action, "agentIsGone") == 0) {
 				agent_is_ready = 0;
 			}
+			// TODO Action : performTaskOnHost:withArguments:timeout:
 
 			if ((protocol_version > INSTRUMENTS_PROTOCOL_VERSION_5) && (type == DTMESSAGEASYNCDISPATCH))
 				return 1;
@@ -98,6 +101,7 @@ static int instruments_client_message_handler_cb(instruments_client_t client, dt
 
 			return 1;
 	} else if (dt_message_get_type(message) == DTMESSAGE) {
+	    printf("GOT DT\n");
 		payload = dt_message_get_payload(message);
 		payload = plist_array_get_item(payload, 0);
 		
@@ -155,6 +159,7 @@ static int instruments_client_message_handler_cb(instruments_client_t client, dt
 		return 1;
 	}
 
+    printf("NI\n");
 	return -1;
 }
 

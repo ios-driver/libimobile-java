@@ -39,7 +39,9 @@ public class ApplicationInfo {
   }
 
   private <T> T cast(NSObject value) {
-    if (value instanceof NSString) {
+    if(value == null){
+      return null;
+    } else if (value instanceof NSString) {
       return (T) value.toString();
     } else if (value instanceof NSNumber) {
       NSNumber number = (NSNumber) value;
